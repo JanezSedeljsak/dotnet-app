@@ -1,13 +1,22 @@
+using Microsoft.EntityFrameworkCore;
+using Models;
+namespace MyDbContext;
+public class LibraryDbContext : DbContext {
+    public LibraryDbContext() {}
+    public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options) {}
 
-/*using Models;
-using System.Data.Entity;
-public class BookStore : DbContext
-{
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseMySql(@"server=localhost;database=BookStoreDb;uid=root;password=root;");
+    public DbSet<Book> Book { get; set; }
+    public DbSet<Author> Author { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+        var conf = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        var conStr = conf.GetConnectionString("AppDb");
+        optionsBuilder.UseMySql(conStr, new MySqlServerVersion(new Version(10, 5)));
     }
-        
-    public DbSet<Author> Authors { get; set; }
-    public DbSet<Book> Books { get; set; }
-}*/
+}
+
+

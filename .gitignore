@@ -17,6 +17,9 @@ nupkg/
 *.userosscache
 *.sln.docstates
 
+# Migration files
+Migrations/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
