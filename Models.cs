@@ -1,19 +1,36 @@
+using System.ComponentModel;
 namespace Models;
 
-public class User {
+public class BaseModel {
     public int id { get; set; }
+
+    [DefaultValue("getutcdate()")]
+    public DateTime createdAt { get; set; }
+
+    [DefaultValue("true")]
+    public bool isActive { get; set; }
+}
+public class ModelWithName : BaseModel {
+    public string name { get; set; }
+}
+
+public class Region : ModelWithName {}
+
+public class Country : ModelWithName {
+    public string countryCode { get; set; }
+    public Region region { get; set; }
+}
+
+public class User : BaseModel {
     public string fullname { get; set; }
     public DateTime birthdate { get; set; }
 }
 
-public class Destination {
-    public int id { get; set; }
-    public string name { get; set; }
-    public int height { get; set; }
+public class Destination : ModelWithName {
+    public Country country { get; set; }
 }
 
-public class Trip {
-    public int id { get; set; }
+public class Trip : BaseModel {
     public Destination destination { get; set; }
     public DateTime tripdate { get; set; }
 }
