@@ -1,12 +1,13 @@
-using Microsoft.EntityFrameworkCore;
 using Models;
-namespace MyDbContext;
-public class LibraryDbContext : DbContext {
-    public LibraryDbContext() {}
-    public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options) {}
-
-    public DbSet<Book> Book { get; set; }
-    public DbSet<Author> Author { get; set; }
+using Microsoft.EntityFrameworkCore;
+namespace ContextWrapper;
+public class TravelLog : DbContext {
+    public TravelLog() {}
+    public TravelLog(DbContextOptions<TravelLog> options) : base(options) {}
+    public DbSet<User> user { get; set; }
+    public DbSet<Destination> destination { get; set; }
+    public DbSet<Trip> trip { get; set; }
+    public DbSet<TripUser> tripuser { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         var conf = new ConfigurationBuilder()

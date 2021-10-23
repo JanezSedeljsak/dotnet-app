@@ -1,17 +1,27 @@
 namespace Models;
 
-public class Author
-{
-    public int AuthorId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public DateTime BirthDate { get; set; }
-    public List<Book> Books { get; set; }
+public class User {
+    public int id { get; set; }
+    public string fullname { get; set; }
+    public DateTime birthdate { get; set; }
 }
 
-public class Book
-{
-    public int BookId { get; set; }
-    public string Title { get; set; }
-    public Author Author { get; set; }
+public class Destination {
+    public int id { get; set; }
+    public string name { get; set; }
+    public int height { get; set; }
 }
+
+public class Trip {
+    public int id { get; set; }
+    public Destination destination { get; set; }
+    public DateTime tripdate { get; set; }
+}
+
+public class TripUser {
+    public int id { get; set; }
+    public Trip trip { get; set; }
+    public User user { get; set; }
+}
+
+
