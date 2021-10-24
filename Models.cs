@@ -26,9 +26,9 @@ public class Country : ModelWithName {
     public string? countryCode { get; set; }
     public Region? region { get; set; }
 
-    public static List<Country> get(TravelLog context) {
-        return context.country.ToList();
-    }
+    public static List<Country> get(TravelLog context) => context.country.ToList();
+    public static Country getCountryByName(TravelLog context, string countryName) => 
+        context.country.Where(c => c.name == countryName).FirstOrDefault();
 }
 
 public class User : BaseModel {

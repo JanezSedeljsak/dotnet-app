@@ -31,4 +31,12 @@ app.MapGet("api/v1/countries", async (http) => {
     await http.Response.WriteAsJsonAsync(listOfCountries);
 });
 
+app.MapGet("api/v1/country/{name}", async (http) => {
+    var context = new TravelLog();
+    var countryName = http.Request.RouteValues["name"].ToString();
+    var country = Country.getCountryByName(context, countryName);
+    await http.Response.WriteAsJsonAsync(country);
+
+}); 
+
 app.Run();
