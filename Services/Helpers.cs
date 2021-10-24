@@ -1,3 +1,4 @@
+using ContextWrapper;
 using Newtonsoft.Json;
 using Models;
 
@@ -16,18 +17,25 @@ public class Helpers {
         foreach (var country in response) {
             string region = country["region"];
             string countryName = country["name"]["common"];
+            string countryCode = country["fifa"];
+
             regions[region] = new Region {
-                name = region
+                name = region,
+                createdAt = DateTime.Now,
+                isActive = true
             };
 
             countries.Add(Tuple.Create(region, new Country {
-                name = countryName
+                name = countryName,
+                countryCode = countryCode
             }));
         }
 
         var countryData = new List<Country>();
         foreach (var country in countries) {
             var tempCountry = country.Item2;
+            tempCountry.createdAt = DateTime.Now;
+            tempCountry.isActive = true;
             if (regions.TryGetValue(country.Item1, out var tempRegion)) {
                 tempCountry.region = tempRegion;
             }
@@ -35,8 +43,13 @@ public class Helpers {
             countryData.Add(tempCountry);
         }
 
-        var regionsData = regions.Values.ToList();
-
+        var regionData = regions.Values.ToList();
+        using (var context = new TravelLog()) {
+            context.region.AddRange(regionData);
+            context.country.AddRange(countryData);
+            context.SaveChanges();
+        }
+     
         return true;
     }
 }
