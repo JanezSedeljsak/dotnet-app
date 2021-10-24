@@ -1,0 +1,6 @@
+{    
+    "RESPONSE_STATUS": {
+        "SYNC_SUCCESS": "Sinhronizacija je uspela",
+        "SYNC_FAIL": "Prišlo je do napake pri sinhronizaciji"
+    }
+}

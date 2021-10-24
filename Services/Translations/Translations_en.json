@@ -1,0 +1,6 @@
+{    
+    "RESPONSE_STATUS": {
+        "SYNC_SUCCESS": "Successfully synced data",
+        "SYNC_FAIL": "Data sync failed"
+    }
+}

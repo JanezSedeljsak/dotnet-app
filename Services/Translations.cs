@@ -1,14 +1,19 @@
 namespace Services.Translations;
 
-public class Translate {
-
+public class TranslateService {
     // cache for translations {<langCode>_<classObj>: <key>: [actual translation]}}
     public Dictionary<string, Dictionary<string, string>> cachedTranslatios { get; set; }
-    public Translate() {
+    public TranslateService() {
         cachedTranslatios = new Dictionary<string, Dictionary<string, string>>();
     }
     public Dictionary<string, string> getClassObj(string objKey) {
-        return new Dictionary<string, string>();
+        if (cachedTranslatios.TryGetValue(objKey, out var translationObj)) {
+            return translationObj;
+        }
+        // @TODO: read file and lone translation obj
+        var objFromFile = new Dictionary<string, string>(); 
+        cachedTranslatios.Add(objKey, objFromFile);
+        return objFromFile;
     }
 
     public string get(string baseClass, string key, string countryCode="en") {
@@ -20,5 +25,4 @@ public class Translate {
 
         return key;
     }
-
 }
