@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using ContextWrapper;
 namespace Models;
 
 public class BaseModel {
@@ -24,6 +25,10 @@ public class Region : ModelWithName {}
 public class Country : ModelWithName {
     public string? countryCode { get; set; }
     public Region? region { get; set; }
+
+    public static List<Country> get(TravelLog context) {
+        return context.country.ToList();
+    }
 }
 
 public class User : BaseModel {
