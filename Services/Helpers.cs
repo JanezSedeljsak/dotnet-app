@@ -20,9 +20,7 @@ public class Helpers {
             string countryCode = country["fifa"];
 
             regions[region] = new Region {
-                name = region,
-                createdAt = DateTime.Now,
-                isActive = true
+                name = region
             };
 
             countries.Add(Tuple.Create(region, new Country {
@@ -34,8 +32,6 @@ public class Helpers {
         var countryData = new List<Country>();
         foreach (var country in countries) {
             var tempCountry = country.Item2;
-            tempCountry.createdAt = DateTime.Now;
-            tempCountry.isActive = true;
             if (regions.TryGetValue(country.Item1, out var tempRegion)) {
                 tempCountry.region = tempRegion;
             }

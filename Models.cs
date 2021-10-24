@@ -9,6 +9,11 @@ public class BaseModel {
 
     [DefaultValue("true")]
     public bool isActive { get; set; }
+
+    public BaseModel() {
+        createdAt = DateTime.Now;
+        isActive = true;
+    }
 }
 public class ModelWithName : BaseModel {
     public string? name { get; set; }
