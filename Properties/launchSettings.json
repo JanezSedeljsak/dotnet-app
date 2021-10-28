@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "MinApi": {
+    "TravelLogService": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
