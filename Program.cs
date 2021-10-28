@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Core.ContextWrapper;
-using Services.Helpers;
 using Services.Translations;
 using Services.Response;
 using Core.IData;
@@ -13,10 +13,13 @@ builder.Services.AddDbContext<TravelLogContext>(x => x.UseMySql(conStr, new MySq
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IDataRepository, DataRepository>();
-//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Travel log service API", Version = "v1" });
+});
 
 var app = builder.Build();
-//app.UseSwaggerUI();
+app.UseSwaggerUI();
+app.UseSwagger(x => x.SerializeAsV2 = true);
 
 var workingFunc = () => "Working...";
 var T = new TranslateService();
