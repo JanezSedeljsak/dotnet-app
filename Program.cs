@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Core.ContextWrapper;
 using Services.Translations;
 using Services.Response;
+using Core.SeedData;
 using Core.IData;
 using Core.DataRep;
 
@@ -28,12 +29,32 @@ if (app.Environment.IsDevelopment()) {
     app.UseDeveloperExceptionPage();
 }
 
+// base actions on server init
+if (args.Length == 1) {
+    switch (args[0].ToLower()) {
+        case "seedata":
+            using (var db = new TravelLogContext()) {
+                bool seedStatus = await SeedRepository.CreateMockData(db, app);
+                Console.WriteLine($"Seed finished with status {seedStatus}");
+            }
+            break;
+        case "synccountries":
+            var dbRep = new DataRepository(new TravelLogContext());
+            var (_, syncMessage) = await dbRep.SyncCountries();
+            var responseMsg = T.get("RESPONSE_STATUS", syncMessage);
+            Console.WriteLine($"Response message from country sync: {responseMsg}");
+            break;
+        default:
+            break;
+    }
+}
+
 app.MapGet("/heartbeat", workingFunc);
 app.MapGet("/", workingFunc);
 
 app.MapGet("api/v1/sync/countries", async ([FromServices] IDataRepository db) => {
-    var syncStatus = await db.SyncCountries();
-    var responseMsg = T.get("RESPONSE_STATUS", syncStatus ? "SYNC_SUCCESS" : "SYNC_FAIL");
+    var (syncStatus, syncMessage) = await db.SyncCountries();
+    var responseMsg = T.get("RESPONSE_STATUS", syncMessage);
 
     return new StatusResponse(syncStatus, responseMsg);
 });

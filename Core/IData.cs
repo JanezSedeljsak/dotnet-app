@@ -4,5 +4,5 @@ namespace Core.IData;
 public interface IDataRepository {
     List<dynamic> GetCountries();
     Country GetCountryByName(string name);
-    Task<bool> SyncCountries();
+    Task<Tuple<bool, string>> SyncCountries();
 }

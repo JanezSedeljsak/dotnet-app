@@ -17,6 +17,7 @@ public class DataRepository : IDataRepository {
             join r in db.region
             on c.region.id equals r.id
             select new { 
+                Id = r.id,
                 CountryName = c.name,
                 RegionName = r.name,
                 CountryCode = c.countryCode,
@@ -29,7 +30,9 @@ public class DataRepository : IDataRepository {
         return db.country.Single(c => c.name == name);
     }
 
-    public async Task<bool> SyncCountries() {
+    public async Task<Tuple<bool, string>> SyncCountries() {
+        if (db.country.Any() || db.region.Any()) return Tuple.Create(false, "DATA_EXISTS");
+
         var client = new HttpClient();
         var data = await client.GetStringAsync("https://restcountries.com/v3.1/all");
         var response = JsonConvert.DeserializeObject<dynamic>(data);
@@ -67,6 +70,6 @@ public class DataRepository : IDataRepository {
         db.country.AddRange(countryData);
         db.SaveChanges();
      
-        return true;
+        return Tuple.Create(true, "SYNC_SUCCESS");
     }
 }
