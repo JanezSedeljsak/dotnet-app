@@ -2,6 +2,7 @@ using Core.IData;
 using Core.Models;
 using Core.ContextWrapper;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace Core.DataRep;
 
@@ -11,12 +12,19 @@ public class DataRepository : IDataRepository {
     public DataRepository(TravelLogContext db) {
         this.db = db;
     }
-    public List<Country> GetCountries() {
-        return db.country.ToList<Country>();
+    public List<dynamic> GetCountries() {
+        var data = db.country
+            .Join(db.region, country => country.region.id, region => region.id, (country, region) => new {
+                CountryName = country.name,
+                RegionName = region.name,
+                CountryCode = country.countryCode,
+            }).ToList<dynamic>();
+
+        return data;
     }
 
     public Country GetCountryByName(string name) {
-        return db.country.Where(c => c.name == name).FirstOrDefault();
+        return db.country.Single(c => c.name == name);
     }
 
     public async Task<bool> SyncCountries() {
