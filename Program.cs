@@ -9,7 +9,8 @@ using Core.DataRep;
 
 var builder = WebApplication.CreateBuilder(args);
 var conStr = builder.Configuration.GetConnectionString("AppDb");
-builder.Services.AddDbContext<TravelLogContext>(x => x.UseMySQL(conStr));
+builder.Services.AddDbContext<TravelLogContext>(x => x.UseMySql(conStr, new MySqlServerVersion(new Version(10, 5, 4))));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IDataRepository, DataRepository>();
 //builder.Services.AddSwaggerGen();
