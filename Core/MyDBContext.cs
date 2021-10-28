@@ -1,9 +1,10 @@
-using Models;
+using Core.Models;
 using Microsoft.EntityFrameworkCore;
-namespace ContextWrapper;
-public class TravelLog : DbContext {
-    public TravelLog() {}
-    public TravelLog(DbContextOptions<TravelLog> options) : base(options) {}
+
+namespace Core.ContextWrapper;
+public class TravelLogContext : DbContext {
+    public TravelLogContext() {}
+    public TravelLogContext(DbContextOptions<TravelLogContext> options) : base(options) {}
     public DbSet<Region> region { get; set; }
     public DbSet<Country> country { get; set; }
     public DbSet<User> user { get; set; }

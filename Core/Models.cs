@@ -1,14 +1,10 @@
-using System.ComponentModel;
-using ContextWrapper;
-namespace Models;
+namespace Core.Models;
 
 public class BaseModel {
     public int id { get; set; }
 
-    [DefaultValue("getutcdate()")]
     public DateTime createdAt { get; set; }
 
-    [DefaultValue("true")]
     public bool isActive { get; set; }
 
     public BaseModel() {
@@ -25,10 +21,6 @@ public class Region : ModelWithName {}
 public class Country : ModelWithName {
     public string? countryCode { get; set; }
     public Region? region { get; set; }
-
-    public static List<Country> get(TravelLog context) => context.country.ToList();
-    public static Country getCountryByName(TravelLog context, string countryName) => 
-        context.country.Where(c => c.name == countryName).FirstOrDefault();
 }
 
 public class User : BaseModel {

@@ -1,4 +1,4 @@
-namespace Response;
+namespace Services.Response;
 
 class StatusResponse {
     public bool status { get; set; }
