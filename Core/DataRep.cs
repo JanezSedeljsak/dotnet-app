@@ -2,7 +2,6 @@ using Core.IData;
 using Core.Models;
 using Core.ContextWrapper;
 using Newtonsoft.Json;
-using System.Linq;
 
 namespace Core.DataRep;
 
@@ -13,11 +12,14 @@ public class DataRepository : IDataRepository {
         this.db = db;
     }
     public List<dynamic> GetCountries() {
-        var data = db.country
-            .Join(db.region, country => country.region.id, region => region.id, (country, region) => new {
-                CountryName = country.name,
-                RegionName = region.name,
-                CountryCode = country.countryCode,
+        var data = (
+            from c in db.country
+            join r in db.region
+            on c.region.id equals r.id
+            select new { 
+                CountryName = c.name,
+                RegionName = r.name,
+                CountryCode = c.countryCode,
             }).ToList<dynamic>();
 
         return data;
