@@ -1,7 +1,7 @@
 namespace Core.Models;
 
 public class BaseModel {
-    public int id { get; set; }
+    public string id { get; set; }
 
     public DateTime createdAt { get; set; }
 
@@ -10,6 +10,7 @@ public class BaseModel {
     public BaseModel() {
         createdAt = DateTime.Now;
         isActive = true;
+        id = Guid.NewGuid().ToString();
     }
 }
 public class ModelWithName : BaseModel {
