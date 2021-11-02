@@ -33,6 +33,7 @@ public class SeedRepository {
                 name = "Pyramids of Giza"
             }
         };
+        
 
         var mockUsers = new List<User> {
             new User {
@@ -55,10 +56,76 @@ public class SeedRepository {
             }
         };
 
-        db.user.AddRange(mockUsers);
         db.destination.AddRange(mockDestinations);
+        db.user.AddRange(mockUsers);
         db.SaveChanges();
-        
+        Console.WriteLine("----------------------\nFinished seed for users and destinations...\n----------------------");
+
+        var mockTrips = new List<Trip> {
+            new Trip {
+                name = "Potovanje v Rim",
+                tripdate = new DateTime(2020, 1, 1),
+                destination = db.destination.Single(c => c.name == "The Colosseum, Rome"),
+            },
+            new Trip {
+                name = "Korona polet v Egipt",
+                tripdate = new DateTime(2020, 5, 1),
+                destination = db.destination.Single(c => c.name == "Pyramids of Giza"),
+            },
+            new Trip {
+                name = "Ogled velike jabke",
+                tripdate = new DateTime(2019, 3, 6),
+                destination = db.destination.Single(c => c.name == "Statue of Liberty, New York City"),
+            },
+            new Trip {
+                name = "Tradicionalni potep v Rim",
+                tripdate = new DateTime(2021, 1, 1),
+                destination = db.destination.Single(c => c.name == "The Colosseum, Rome"),
+            }
+        };
+
+        db.trip.AddRange(mockTrips);
+        db.SaveChanges();
+        Console.WriteLine("----------------------\nFinished seed for trips...\n----------------------");
+
+        var mockTripUsers = new List<TripUser> {
+            new TripUser {
+               trip = db.trip.Single(c => c.name == "Potovanje v Rim"),
+               user = db.user.Single(c => c.fullname == "Janez Sedeljsak"),
+            },
+            new TripUser {
+               trip = db.trip.Single(c => c.name == "Potovanje v Rim"),
+               user = db.user.Single(c => c.fullname == "Lorem Ipsum"),
+            },
+            new TripUser {
+               trip = db.trip.Single(c => c.name == "Korona polet v Egipt"),
+               user = db.user.Single(c => c.fullname == "John Doe"),
+            },
+            new TripUser {
+               trip = db.trip.Single(c => c.name == "Ogled velike jabke"),
+               user = db.user.Single(c => c.fullname == "Lorem Ipsum"),
+            },
+            new TripUser {
+               trip = db.trip.Single(c => c.name == "Ogled velike jabke"),
+               user = db.user.Single(c => c.fullname == "John Doe"),
+            },
+            new TripUser {
+               trip = db.trip.Single(c => c.name == "Ogled velike jabke"),
+               user = db.user.Single(c => c.fullname == "Janez Sedeljsak"),
+            },
+            new TripUser {
+               trip = db.trip.Single(c => c.name == "Tradicionalni potep v Rim"),
+               user = db.user.Single(c => c.fullname == "Janez Sedeljsak"),
+            },
+            new TripUser {
+               trip = db.trip.Single(c => c.name == "Tradicionalni potep v Rim"),
+               user = db.user.Single(c => c.fullname == "John Doe"),
+            }
+        };
+
+        db.tripuser.AddRange(mockTripUsers);
+        db.SaveChanges();
+        Console.WriteLine("----------------------\nFinished seed for user-trips...\n----------------------");
         Console.WriteLine("----------------------\nFinished seed...\n----------------------");
         return true;
     }

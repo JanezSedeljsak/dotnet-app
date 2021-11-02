@@ -22,7 +22,7 @@ var app = builder.Build();
 app.UseSwaggerUI();
 app.UseSwagger(x => x.SerializeAsV2 = true);
 
-var workingFunc = () => "Working...";
+var workingFunc = () => new StatusResponse(true, "Server running...");
 var T = new TranslateService();
 
 if (app.Environment.IsDevelopment()) {

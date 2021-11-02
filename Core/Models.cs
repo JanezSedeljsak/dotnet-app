@@ -35,7 +35,7 @@ public class Destination : ModelWithName {
     public Country? country { get; set; }
 }
 
-public class Trip : BaseModel {
+public class Trip : ModelWithName {
     public Destination? destination { get; set; }
     public DateTime? tripdate { get; set; }
 }
