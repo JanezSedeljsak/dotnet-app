@@ -14,6 +14,7 @@ builder.Services.AddDbContext<TravelLogContext>(x => x.UseMySql(conStr, new MySq
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IDataRepository, DataRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Travel log service API", Version = "v1" });
 });
@@ -71,6 +72,14 @@ app.MapGet("api/v1/{model}", ([FromServices] IDataRepository db, string model) =
 
 app.MapGet("api/v1/country/{name}", ([FromServices] IDataRepository db, string name) => {
     return db.GetCountryByName(name);
+});
+
+app.MapPost("api/v1/auth/register", ([FromServices] IAuthRepository db) => {
+    return db.AuthRegister("Random Person", new DateTime(1980, 1, 1), "random.person@gmail.com", "blabla123");
+});
+
+app.MapPost("api/v1/auth/login", ([FromServices] IAuthRepository db, string name) => {
+    return db.AuthLogin("janez.sedeljsak@gmail.com", "janez.123");
 });
 
 app.Run();

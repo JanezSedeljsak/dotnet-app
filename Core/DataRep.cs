@@ -2,7 +2,6 @@ using Core.IData;
 using Core.Models;
 using Core.ContextWrapper;
 using Newtonsoft.Json;
-using System.Dynamic;
 
 namespace Core.DataRep;
 
@@ -85,7 +84,12 @@ public class DataRepository : IDataRepository {
         var data = new List<dynamic>();
         foreach (var row in tripData) {
             data.Add(new {
-                TripData = row,
+                TripName = row.TripName,
+                TripDate = row.TripDate,
+                Destination = row.Destination,
+                CountryName = row.CountryName,
+                RegionName = row.RegionName,
+                CountryCode = row.CountryCode,
                 UserList = tripUsers.Where(u => u.TripId == row.Id).ToList<dynamic>()
             });
         }
@@ -139,5 +143,29 @@ public class DataRepository : IDataRepository {
         db.SaveChanges();
      
         return Tuple.Create(true, "SYNC_SUCCESS");
+    }
+}
+
+public class AuthRepository : IAuthRepository {
+    private readonly TravelLogContext db;
+
+    public AuthRepository(TravelLogContext db) {
+        this.db = db;
+    }
+
+    public dynamic AuthRegister(string fullname, DateTime birthdate, string email, string password) {
+        return new User {
+            fullname = fullname,
+            birthdate = birthdate,
+            email = email,
+            password = BCrypt.Net.BCrypt.HashPassword(password),
+        };
+    }
+
+    public dynamic AuthLogin(string email, string password) {
+        // @TODO implement refresh token auth
+        return new {
+            token = BCrypt.Net.BCrypt.HashPassword("test")
+        };
     }
 }

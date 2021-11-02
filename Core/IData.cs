@@ -6,6 +6,12 @@ public interface IDataRepository {
     List<dynamic> GetUsers();
     List<dynamic> GetDestinations();
     List<dynamic> GetTrips();
+
     Country GetCountryByName(string name);
     Task<Tuple<bool, string>> SyncCountries();
+}
+
+public interface IAuthRepository {
+    dynamic AuthRegister(string fullname, DateTime birthdate, string email, string password);
+    dynamic AuthLogin(string email, string password);
 }
