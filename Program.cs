@@ -32,7 +32,7 @@ if (app.Environment.IsDevelopment()) {
 // base actions on server init
 if (args.Length == 1) {
     switch (args[0].ToLower()) {
-        case "seedata":
+        case "seeddata":
             using (var db = new TravelLogContext()) {
                 bool seedStatus = await SeedRepository.CreateMockData(db, app);
                 Console.WriteLine($"Seed finished with status {seedStatus}");
