@@ -2,6 +2,8 @@ using Core.IData;
 using Core.Models;
 using Core.DataRep;
 using Core.ContextWrapper;
+using System.Linq;
+using BC = BCrypt.Net.BCrypt;
 
 namespace Core.SeedData;
 
@@ -36,19 +38,19 @@ public class SeedRepository {
             new User {
                 fullname = "Janez Sedeljsak",
                 email = "janez.sedeljsak@gmail.com",
-                password = "janez123",
+                password = BCrypt.Net.BCrypt.HashPassword("janez123"),
                 birthdate = new DateTime(2000, 12, 12)
             },
             new User {
                 fullname = "Lorem Ipsum",
                 email = "lorem.ipsum@gmail.com",
-                password = "lorem123",
+                password = BCrypt.Net.BCrypt.HashPassword("lorem123"),
                 birthdate = new DateTime(1970, 10, 3)
             },
             new User {
                 fullname = "John Doe",
                 email = "john.doe@gmail.com",
-                password = "john123",
+                password = BCrypt.Net.BCrypt.HashPassword("john123"),
                 birthdate = new DateTime(2000, 1, 1)
             }
         };
