@@ -59,8 +59,13 @@ app.MapGet("api/v1/sync/countries", async ([FromServices] IDataRepository db) =>
     return new StatusResponse(syncStatus, responseMsg);
 });
 
-app.MapGet("api/v1/countries", ([FromServices] IDataRepository db) => {
-    return db.GetCountries();
+app.MapGet("api/v1/{model}", ([FromServices] IDataRepository db, string model) => {
+    return model switch {
+        "countries" => db.GetCountries(),
+        "users" => db.GetUsers(),
+        "destinations" => db.GetDestinations(),
+        _ => throw new Exception($"Invalid model name: {model}")
+    };
 });
 
 app.MapGet("api/v1/country/{name}", ([FromServices] IDataRepository db, string name) => {

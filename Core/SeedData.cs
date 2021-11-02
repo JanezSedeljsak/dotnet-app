@@ -55,7 +55,6 @@ public class SeedRepository {
             }
         };
 
-
         db.user.AddRange(mockUsers);
         db.destination.AddRange(mockDestinations);
         db.SaveChanges();

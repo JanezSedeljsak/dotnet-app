@@ -26,6 +26,35 @@ public class DataRepository : IDataRepository {
         return data;
     }
 
+    public List<dynamic> GetDestinations() {
+        var data = (
+            from d in db.destination
+            join c in db.country on d.country.id equals c.id
+            join r in db.region on c.region.id equals r.id
+            select new { 
+                Id = d.id,
+                Destination = d.name,
+                CountryName = c.name,
+                RegionName = r.name,
+                CountryCode = c.countryCode,
+            }).ToList<dynamic>();
+
+        return data;
+    }
+
+    public List<dynamic> GetUsers() {
+        var data = (
+            from u in db.user
+            select new {
+                Id = u.id,
+                FullName = u.fullname,
+                Email = u.email,
+                BirthDate = u.birthdate
+            }).ToList<dynamic>();
+
+        return data;
+    }
+
     public Country GetCountryByName(string name) {
         return db.country.Single(c => c.name == name);
     }
