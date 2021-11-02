@@ -2,6 +2,7 @@ using Core.IData;
 using Core.Models;
 using Core.ContextWrapper;
 using Newtonsoft.Json;
+using System.Dynamic;
 
 namespace Core.DataRep;
 
@@ -54,6 +55,44 @@ public class DataRepository : IDataRepository {
 
         return data;
     }
+
+     public List<dynamic> GetTrips() {
+        var tripUsers = (
+            from tu in db.tripuser
+            join u in db.user on tu.user.id equals u.id
+            select new {
+                TripId = tu.trip.id,
+                FullName = u.fullname,
+                Email = u.email,
+                BirthDate = u.birthdate
+            }).ToList<dynamic>();
+
+        var tripData = (
+            from t in db.trip
+            join d in db.destination on t.destination.id equals d.id
+            join c in db.country on d.country.id equals c.id
+            join r in db.region on c.region.id equals r.id
+            select new { 
+                Id = t.id,
+                TripName = t.name,
+                TripDate = t.tripdate,
+                Destination = d.name,
+                CountryName = c.name,
+                RegionName = r.name,
+                CountryCode = c.countryCode
+            }).ToList<dynamic>();
+        
+        var data = new List<dynamic>();
+        foreach (var row in tripData) {
+            data.Add(new {
+                TripData = row,
+                UserList = tripUsers.Where(u => u.TripId == row.Id).ToList<dynamic>()
+            });
+        }
+
+        return data;
+    }
+
 
     public Country GetCountryByName(string name) {
         return db.country.Single(c => c.name == name);

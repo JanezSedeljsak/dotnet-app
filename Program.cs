@@ -64,6 +64,7 @@ app.MapGet("api/v1/{model}", ([FromServices] IDataRepository db, string model) =
         "countries" => db.GetCountries(),
         "users" => db.GetUsers(),
         "destinations" => db.GetDestinations(),
+        "trips" => db.GetTrips(),
         _ => throw new Exception($"Invalid model name: {model}")
     };
 });
