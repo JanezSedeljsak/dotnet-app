@@ -15,6 +15,20 @@ builder.Services.AddDbContext<TravelLogContext>(x => x.UseMySql(conStr, new MySq
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IDataRepository, DataRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt => {
+    opt.TokenValidationParameters = new () {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Travel log service API", Version = "v1" });
 });
@@ -60,7 +74,7 @@ app.MapGet("api/v1/sync/countries", async ([FromServices] IDataRepository db) =>
     return new StatusResponse(syncStatus, responseMsg);
 });
 
-app.MapGet("api/v1/{model}", ([FromServices] IDataRepository db, string model) => {
+app.MapGet("api/v1/{model}", ([AllowAnonymous]([FromServices] IDataRepository db, string model) => {
     return model switch {
         "countries" => db.GetCountries(),
         "users" => db.GetUsers(),
@@ -68,18 +82,18 @@ app.MapGet("api/v1/{model}", ([FromServices] IDataRepository db, string model) =
         "trips" => db.GetTrips(),
         _ => throw new Exception($"Invalid model name: {model}")
     };
-});
+}));
 
-app.MapGet("api/v1/country/{name}", ([FromServices] IDataRepository db, string name) => {
+app.MapGet("api/v1/country/{name}", ([Authorize]([FromServices] IDataRepository db, string name) => {
     return db.GetCountryByName(name);
-});
+}));
 
-app.MapPost("api/v1/auth/register", ([FromServices] IAuthRepository db) => {
+app.MapPost("api/v1/auth/register", ([AllowAnonymous]([FromServices] IAuthRepository db) => {
     return db.AuthRegister("Random Person", new DateTime(1980, 1, 1), "random.person@gmail.com", "blabla123");
-});
+}));
 
-app.MapPost("api/v1/auth/login", ([FromServices] IAuthRepository db, string name) => {
+app.MapPost("api/v1/auth/login", ([AllowAnonymous]([FromServices] IAuthRepository db, string name) => {
     return db.AuthLogin("janez.sedeljsak@gmail.com", "janez.123");
-});
+}));
 
 app.Run();
