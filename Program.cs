@@ -37,6 +37,7 @@ builder.Services.AddSwaggerGen(c => {
 
 var app = builder.Build();
 app.UseSwaggerUI();
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwagger(x => x.SerializeAsV2 = true);
 
