@@ -12,9 +12,15 @@ public class BaseModel {
         isActive = true;
         id = Guid.NewGuid().ToString();
     }
+
+    public string GetShowAs() {
+        return "GET_SHOW_AS_NOT_DEFINED";
+    }
 }
 public class ModelWithName : BaseModel {
     public string? name { get; set; }
+
+    public string GetShowAs() => name;
 }
 
 public class Region : ModelWithName {}
@@ -22,6 +28,7 @@ public class Region : ModelWithName {}
 public class Country : ModelWithName {
     public string? countryCode { get; set; }
     public Region? region { get; set; }
+    public string GetShowAs() => $"{(countryCode == null ? "XXX" : countryCode)} - {name}";
 }
 
 public class User : BaseModel {
@@ -30,10 +37,13 @@ public class User : BaseModel {
 
     public string? password { get; set; }
     public DateTime? birthdate { get; set; }
+    public string GetShowAs() => fullname;
 }
 
 public class Destination : ModelWithName {
     public Country? country { get; set; }
+
+    public string GetShowAs(dynamic self) => $"{country.name} - {name}";
 }
 
 public class Trip : ModelWithName {

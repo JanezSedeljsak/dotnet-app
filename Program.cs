@@ -78,6 +78,10 @@ app.MapGet("api/v1/sync/countries", async (IDataRepository db) => {
     return new StatusResponse(syncStatus, responseMsg);
 });
 
+app.MapGet("api/v1/pickers/{model}", (IDataRepository db, string model) => {
+    return db.GetShowAsRows(model);
+});
+
 app.MapGet("api/v1/{model}", (IDataRepository db, string model) => {
     return model switch {
         "countries" => db.GetCountries(),
@@ -90,9 +94,7 @@ app.MapGet("api/v1/{model}", (IDataRepository db, string model) => {
 
 app.MapGet("api/v1/country/{name}", [Authorize] async (HttpContext http, IDataRepository db, IAuthRepository auth, string name) => {
     User currentUser = auth.ParseUser(http);
-    if (currentUser != null) {
-        http.Response.WriteAsJsonAsync(db.GetCountryByName(name));
-    }
+    http.Response.WriteAsJsonAsync(db.GetCountryByName(name));
 });
 
 app.MapPost("api/v1/auth/register", async (HttpContext http, IAuthRepository db) => {

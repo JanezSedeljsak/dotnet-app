@@ -8,6 +8,7 @@ public interface IDataRepository {
     List<dynamic> GetTrips();
     Country GetCountryByName(string name);
     Task<Tuple<bool, string>> SyncCountries();
+    List<dynamic> GetShowAsRows(string modelName);
 }
 
 public interface IAuthRepository {

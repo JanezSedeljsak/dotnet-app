@@ -11,6 +11,20 @@ public class DataRepository : IDataRepository {
     public DataRepository(TravelLogContext db) {
         this.db = db;
     }
+
+    public List<dynamic> GetShowAsRows(string modelName) {
+        var dataList = db.GetDbSet(modelName);
+        var result = new List<dynamic>();
+
+        foreach (var item in dataList) {
+            result.Add(new {
+                Id = item.id,
+                ShowAs = item.GetShowAs()
+            });
+        }
+
+        return result;
+    }
     public List<dynamic> GetCountries() {
         var data = (
             from c in db.country
@@ -193,7 +207,7 @@ public class AuthRepository : IAuthRepository {
 
         http.Response.StatusCode = 401;
         http.Response.WriteAsJsonAsync(new { message = "TOKEN_PARSE_FAILED" });
-        return null;
+        throw new Exception("Token parse failed");
     }
 }
 
