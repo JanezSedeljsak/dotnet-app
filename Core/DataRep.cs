@@ -25,6 +25,14 @@ public class DataRepository : IDataRepository {
 
         return result;
     }
+
+    public bool DeactivateColumn(string modelName, string id) {
+        var dbRow = db.GetDbSet(modelName).FirstOrDefault(row => row.id == id);
+        dbRow.Deactivate();
+        db.SaveChanges();
+        return true;
+    }
+
     public List<dynamic> GetCountries() {
         var data = (
             from c in db.country

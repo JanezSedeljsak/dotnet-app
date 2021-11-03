@@ -82,6 +82,11 @@ app.MapGet("api/v1/pickers/{model}", (IDataRepository db, string model) => {
     return db.GetShowAsRows(model);
 });
 
+app.MapDelete("api/v1/deactivate/{model}/{id}", (IDataRepository db, string model, string id) => {
+    var status = db.DeactivateColumn(model, id);
+    return new StatusResponse(status, status == false ? "DEACTIVATE_FAILED" : "");
+});
+
 app.MapGet("api/v1/{model}", (IDataRepository db, string model) => {
     return model switch {
         "countries" => db.GetCountries(),

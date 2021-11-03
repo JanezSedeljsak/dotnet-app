@@ -9,6 +9,7 @@ public interface IDataRepository {
     Country GetCountryByName(string name);
     Task<Tuple<bool, string>> SyncCountries();
     List<dynamic> GetShowAsRows(string modelName);
+    bool DeactivateColumn(string modelName, string id);
 }
 
 public interface IAuthRepository {

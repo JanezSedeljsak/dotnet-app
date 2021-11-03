@@ -16,6 +16,10 @@ public class BaseModel {
     public string GetShowAs() {
         return "GET_SHOW_AS_NOT_DEFINED";
     }
+
+    public void Deactivate() {
+        isActive = false;
+    }
 }
 public class ModelWithName : BaseModel {
     public string? name { get; set; }
@@ -42,8 +46,6 @@ public class User : BaseModel {
 
 public class Destination : ModelWithName {
     public Country? country { get; set; }
-
-    public string GetShowAs(dynamic self) => $"{country.name} - {name}";
 }
 
 public class Trip : ModelWithName {
@@ -56,5 +58,5 @@ public class TripUser : BaseModel {
     public User? user { get; set; }
 }
 
-public record AuthCredentials([Required] string email,[Required] string password);
+public record AuthCredentials([Required] string email, [Required] string password);
 

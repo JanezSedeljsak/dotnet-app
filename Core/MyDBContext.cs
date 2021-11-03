@@ -11,7 +11,7 @@ public class TravelLogContext : DbContext {
     public DbSet<Destination> destination { get; set; }
     public DbSet<Trip> trip { get; set; }
     public DbSet<TripUser> tripuser { get; set; }
-    public IQueryable<dynamic> GetDbSet(string modelName) {
+    public IQueryable<BaseModel> GetDbSet(string modelName) {
         return modelName switch {
             "countries" => country,
             "users" => user,
