@@ -46,4 +46,5 @@ public class TripUser : BaseModel {
     public User? user { get; set; }
 }
 
+public record AuthCredentials([Required] string email,[Required] string password);
 

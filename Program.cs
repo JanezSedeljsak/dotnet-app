@@ -7,6 +7,7 @@ using Services.Response;
 using Core.SeedData;
 using Core.IData;
 using Core.DataRep;
+using Core.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var conStr = builder.Configuration.GetConnectionString("AppDb");
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<TravelLogContext>(x => x.UseMySql(conStr, new MySq
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IDataRepository, DataRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt => {
@@ -36,6 +38,7 @@ builder.Services.AddSwaggerGen(c => {
 var app = builder.Build();
 app.UseSwaggerUI();
 app.UseSwagger(x => x.SerializeAsV2 = true);
+
 
 var workingFunc = () => new StatusResponse(true, "Server running...");
 var T = new TranslateService();
@@ -88,12 +91,20 @@ app.MapGet("api/v1/country/{name}", ([Authorize]([FromServices] IDataRepository 
     return db.GetCountryByName(name);
 }));
 
-app.MapPost("api/v1/auth/register", ([AllowAnonymous]([FromServices] IAuthRepository db) => {
+app.MapPost("api/v1/auth/register", ([AllowAnonymous](ITokenService tokenService, IAuthRepository db) => {
     return db.AuthRegister("Random Person", new DateTime(1980, 1, 1), "random.person@gmail.com", "blabla123");
 }));
 
-app.MapPost("api/v1/auth/login", ([AllowAnonymous]([FromServices] IAuthRepository db, string name) => {
-    return db.AuthLogin("janez.sedeljsak@gmail.com", "janez.123");
-}));
+app.MapPost("api/v1/auth/login", [AllowAnonymous]  async (HttpContext http,ITokenService tokenService, IAuthRepository db) => {
+    var userModel = await http.Request.ReadFromJsonAsync<AuthCredentials>();
+    var (status, authUser) = db.GetAuth(userModel);
+    if (!status) {
+        http.Response.StatusCode = 401;
+        return;
+    }
+
+    var token = tokenService.BuildToken(builder.Configuration["Jwt:Key"], builder.Configuration["Jwt:Issuer"], authUser);
+    await http.Response.WriteAsJsonAsync(new { token = token });
+});
 
 app.Run();

@@ -168,4 +168,35 @@ public class AuthRepository : IAuthRepository {
             token = BCrypt.Net.BCrypt.HashPassword("test")
         };
     }
+
+    public Tuple<bool, User> GetAuth(AuthCredentials credentials) {
+        var userByEmail = db.user.Single(u => u.email == credentials.email);
+        if (userByEmail == null) {
+            return Tuple.Create(false, userByEmail);
+        }
+
+        bool verified = BCrypt.Net.BCrypt.Verify(credentials.password, userByEmail.password);
+        if (verified) {
+            return Tuple.Create(verified, userByEmail);
+        }
+
+        return Tuple.Create(false, userByEmail);
+    }
+}
+
+public class TokenService : ITokenService {
+    private TimeSpan ExpiryDuration = new TimeSpan(0, 30, 0);
+    public string BuildToken(string key, string issuer, User user) {
+        var claims = new[] {
+            new Claim(ClaimTypes.Name, user.email),
+            new Claim(ClaimTypes.NameIdentifier,
+            Guid.NewGuid().ToString())
+        };
+
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+        var tokenDescriptor = new JwtSecurityToken(issuer, issuer, claims,
+            expires: DateTime.Now.Add(ExpiryDuration), signingCredentials: credentials);
+        return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+    }
 }
