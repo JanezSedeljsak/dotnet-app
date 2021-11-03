@@ -153,34 +153,32 @@ public class AuthRepository : IAuthRepository {
         this.db = db;
     }
 
-    public dynamic AuthRegister(string fullname, DateTime birthdate, string email, string password) {
-        return new User {
-            fullname = fullname,
-            birthdate = birthdate,
-            email = email,
-            password = BCrypt.Net.BCrypt.HashPassword(password),
+    public Tuple<bool, User> AuthRegister(User user) {
+        var newUser = new User {
+            fullname = user.fullname,
+            birthdate = user.birthdate,
+            email = user.email,
+            password = BCrypt.Net.BCrypt.HashPassword(user.password),
         };
+
+        db.user.AddRange(newUser);
+        db.SaveChanges();
+
+        return Tuple.Create(true, newUser);
     }
 
-    public dynamic AuthLogin(string email, string password) {
-        // @TODO implement refresh token auth
-        return new {
-            token = BCrypt.Net.BCrypt.HashPassword("test")
-        };
-    }
-
-    public Tuple<bool, User> GetAuth(AuthCredentials credentials) {
-        var userByEmail = db.user.Single(u => u.email == credentials.email);
+    public Tuple<bool, User, string> GetAuth(AuthCredentials credentials) {
+        var userByEmail = db.user.FirstOrDefault(u => u.email == credentials.email);
         if (userByEmail == null) {
-            return Tuple.Create(false, userByEmail);
+            return Tuple.Create(false, userByEmail, "NO_USER");
         }
 
         bool verified = BCrypt.Net.BCrypt.Verify(credentials.password, userByEmail.password);
         if (verified) {
-            return Tuple.Create(verified, userByEmail);
+            return Tuple.Create(verified, userByEmail, "");
         }
 
-        return Tuple.Create(false, userByEmail);
+        return Tuple.Create(false, userByEmail, "PASSWORD_MISSMATCH");
     }
 }
 

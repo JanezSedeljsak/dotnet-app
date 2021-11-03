@@ -87,20 +87,22 @@ app.MapGet("api/v1/{model}", ([AllowAnonymous]([FromServices] IDataRepository db
     };
 }));
 
-app.MapGet("api/v1/country/{name}", ([Authorize]([FromServices] IDataRepository db, string name) => {
+app.MapGet("api/v1/country/{name}", [Authorize] ([FromServices] IDataRepository db, string name) => {
     return db.GetCountryByName(name);
-}));
+});
 
-app.MapPost("api/v1/auth/register", ([AllowAnonymous](ITokenService tokenService, IAuthRepository db) => {
-    return db.AuthRegister("Random Person", new DateTime(1980, 1, 1), "random.person@gmail.com", "blabla123");
-}));
+app.MapPost("api/v1/auth/register", [AllowAnonymous] async (HttpContext http, IAuthRepository db) => {
+    var newUserData = await http.Request.ReadFromJsonAsync<User>();
+    var (status, userCreated) = db.AuthRegister(newUserData);
+    await http.Response.WriteAsJsonAsync(new { status = status, user = userCreated });
+});
 
 app.MapPost("api/v1/auth/login", [AllowAnonymous]  async (HttpContext http,ITokenService tokenService, IAuthRepository db) => {
     var userModel = await http.Request.ReadFromJsonAsync<AuthCredentials>();
-    var (status, authUser) = db.GetAuth(userModel);
+    var (status, authUser, responseMessage) = db.GetAuth(userModel);
     if (!status) {
         http.Response.StatusCode = 401;
-        return;
+        http.Response.WriteAsJsonAsync(new { message = responseMessage });
     }
 
     var token = tokenService.BuildToken(builder.Configuration["Jwt:Key"], builder.Configuration["Jwt:Issuer"], authUser);

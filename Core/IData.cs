@@ -11,9 +11,8 @@ public interface IDataRepository {
 }
 
 public interface IAuthRepository {
-    dynamic AuthRegister(string fullname, DateTime birthdate, string email, string password);
-    dynamic AuthLogin(string email, string password);
-    Tuple<bool, User> GetAuth(AuthCredentials credentials);
+    Tuple<bool, User> AuthRegister(User user);
+    Tuple<bool, User, string> GetAuth(AuthCredentials credentials);
 }
 
 public interface ITokenService {
