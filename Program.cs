@@ -37,6 +37,7 @@ builder.Services.AddSwaggerGen(c => {
 
 var app = builder.Build();
 app.UseSwaggerUI();
+app.UseAuthorization();
 app.UseSwagger(x => x.SerializeAsV2 = true);
 
 
@@ -77,7 +78,7 @@ app.MapGet("api/v1/sync/countries", async ([FromServices] IDataRepository db) =>
     return new StatusResponse(syncStatus, responseMsg);
 });
 
-app.MapGet("api/v1/{model}", ([AllowAnonymous]([FromServices] IDataRepository db, string model) => {
+app.MapGet("api/v1/{model}", [Authorize] ([FromServices] IDataRepository db, string model) => {
     return model switch {
         "countries" => db.GetCountries(),
         "users" => db.GetUsers(),
@@ -85,7 +86,7 @@ app.MapGet("api/v1/{model}", ([AllowAnonymous]([FromServices] IDataRepository db
         "trips" => db.GetTrips(),
         _ => throw new Exception($"Invalid model name: {model}")
     };
-}));
+});
 
 app.MapGet("api/v1/country/{name}", [Authorize] ([FromServices] IDataRepository db, string name) => {
     return db.GetCountryByName(name);
