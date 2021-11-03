@@ -71,14 +71,14 @@ if (args.Length == 1) {
 app.MapGet("/heartbeat", workingFunc);
 app.MapGet("/", workingFunc);
 
-app.MapGet("api/v1/sync/countries", async ([FromServices] IDataRepository db) => {
+app.MapGet("api/v1/sync/countries", async (IDataRepository db) => {
     var (syncStatus, syncMessage) = await db.SyncCountries();
     var responseMsg = T.get("RESPONSE_STATUS", syncMessage);
 
     return new StatusResponse(syncStatus, responseMsg);
 });
 
-app.MapGet("api/v1/{model}", [Authorize] ([FromServices] IDataRepository db, string model) => {
+app.MapGet("api/v1/{model}", (IDataRepository db, string model) => {
     return model switch {
         "countries" => db.GetCountries(),
         "users" => db.GetUsers(),
@@ -88,17 +88,17 @@ app.MapGet("api/v1/{model}", [Authorize] ([FromServices] IDataRepository db, str
     };
 });
 
-app.MapGet("api/v1/country/{name}", [Authorize] ([FromServices] IDataRepository db, string name) => {
+app.MapGet("api/v1/country/{name}", [Authorize] (IDataRepository db, string name) => {
     return db.GetCountryByName(name);
 });
 
-app.MapPost("api/v1/auth/register", [AllowAnonymous] async (HttpContext http, IAuthRepository db) => {
+app.MapPost("api/v1/auth/register", async (HttpContext http, IAuthRepository db) => {
     var newUserData = await http.Request.ReadFromJsonAsync<User>();
     var (status, userCreated) = db.AuthRegister(newUserData);
     await http.Response.WriteAsJsonAsync(new { status = status, user = userCreated });
 });
 
-app.MapPost("api/v1/auth/login", [AllowAnonymous]  async (HttpContext http,ITokenService tokenService, IAuthRepository db) => {
+app.MapPost("api/v1/auth/login", async (HttpContext http, ITokenService tokenService, IAuthRepository db) => {
     var userModel = await http.Request.ReadFromJsonAsync<AuthCredentials>();
     var (status, authUser, responseMessage) = db.GetAuth(userModel);
     if (!status) {
