@@ -180,13 +180,28 @@ public class AuthRepository : IAuthRepository {
 
         return Tuple.Create(false, userByEmail, "PASSWORD_MISSMATCH");
     }
+
+    public User ParseUser(HttpContext http) {
+        User currentUser;
+        if (http.User.Identity is ClaimsIdentity identity) {
+            string userId = identity.FindFirst(ClaimTypes.Name)?.Value;
+            currentUser = db.user.FirstOrDefault(u => u.id == userId);
+            if (currentUser != null) {
+                return currentUser;
+            }
+        }
+
+        http.Response.StatusCode = 401;
+        http.Response.WriteAsJsonAsync(new { message = "TOKEN_PARSE_FAILED" });
+        return null;
+    }
 }
 
 public class TokenService : ITokenService {
     private TimeSpan ExpiryDuration = new TimeSpan(0, 30, 0);
     public string BuildToken(string key, string issuer, User user) {
         var claims = new[] {
-            new Claim(ClaimTypes.Name, user.email),
+            new Claim(ClaimTypes.Name, user.id),
             new Claim(ClaimTypes.NameIdentifier,
             Guid.NewGuid().ToString())
         };

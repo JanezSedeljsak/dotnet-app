@@ -13,6 +13,7 @@ public interface IDataRepository {
 public interface IAuthRepository {
     Tuple<bool, User> AuthRegister(User user);
     Tuple<bool, User, string> GetAuth(AuthCredentials credentials);
+    User ParseUser(HttpContext http);
 }
 
 public interface ITokenService {

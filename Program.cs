@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Mvc;
 using Core.ContextWrapper;
 using Services.Translations;
 using Services.Response;
@@ -89,8 +88,11 @@ app.MapGet("api/v1/{model}", (IDataRepository db, string model) => {
     };
 });
 
-app.MapGet("api/v1/country/{name}", [Authorize] (IDataRepository db, string name) => {
-    return db.GetCountryByName(name);
+app.MapGet("api/v1/country/{name}", [Authorize] async (HttpContext http, IDataRepository db, IAuthRepository auth, string name) => {
+    User currentUser = auth.ParseUser(http);
+    if (currentUser != null) {
+        http.Response.WriteAsJsonAsync(db.GetCountryByName(name));
+    }
 });
 
 app.MapPost("api/v1/auth/register", async (HttpContext http, IAuthRepository db) => {
