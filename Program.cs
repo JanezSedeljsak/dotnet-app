@@ -1,12 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Core.ContextWrapper;
 using Services.Translations;
 using Services.Response;
 using Core.SeedData;
 using Core.IData;
 using Core.DataRep;
-using Core.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var conStr = builder.Configuration.GetConnectionString("AppDb");
@@ -82,8 +80,8 @@ app.MapGet("api/v1/pickers/{model}", [Authorize] (IDataRepository db, string mod
     return db.GetShowAsRows(model);
 });
 
-app.MapDelete("api/v1/{model}/{id}", (IDataRepository db, string model, string id) => {
-    var status = db.DeactivateColumn(model, id);
+app.MapDelete("api/v1/{model}/{id}", async (IDataRepository db, string model, string id) => {
+    var status = await db.DeactivateColumn(model, id);
     return new StatusResponse(status, status == false ? "DEACTIVATE_FAILED" : "");
 });
 
@@ -104,9 +102,9 @@ app.MapGet("api/v1/{model}/{id}", (IDataRepository db, string model, string id) 
 
 app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, IDataRepository db, string model) => {
     var insertStatus = model switch {
-        "destinations" => db.InsertDestination(await http.Request.ReadFromJsonAsync<Destination>()),
-        "trip" => db.InsertTrip(await http.Request.ReadFromJsonAsync<Trip>()),
-        "tripuser" => db.InsertTripUser(await http.Request.ReadFromJsonAsync<TripUser>()),
+        "destinations" => await db.InsertDestination(await http.Request.ReadFromJsonAsync<Destination>()),
+        "trip" => await db.InsertTrip(await http.Request.ReadFromJsonAsync<Trip>()),
+        "tripuser" => await db.InsertTripUser(await http.Request.ReadFromJsonAsync<TripUser>()),
         _ => throw new Exception($"Invalid model name: {model}")
     };
 

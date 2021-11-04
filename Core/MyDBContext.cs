@@ -1,6 +1,3 @@
-using Core.Models;
-using Microsoft.EntityFrameworkCore;
-
 namespace Core.ContextWrapper;
 public class TravelLogContext : DbContext {
     public TravelLogContext() {}

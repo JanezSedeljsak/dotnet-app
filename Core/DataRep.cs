@@ -1,6 +1,4 @@
 using Core.IData;
-using Core.Models;
-using Core.ContextWrapper;
 using Newtonsoft.Json;
 
 namespace Core.DataRep;
@@ -26,11 +24,10 @@ public class DataRepository : IDataRepository {
         return result;
     }
 
-    public bool DeactivateColumn(string modelName, string id) {
+    public async Task<bool> DeactivateColumn(string modelName, string id) {
         var dbRow = db.GetDbSet(modelName).FirstOrDefault(row => row.id == id);
         dbRow.Deactivate();
-        db.SaveChanges();
-        return true;
+        return (await db.SaveChangesAsync()) > 0;
     }
 
     public List<dynamic> GetCountries() {
@@ -119,31 +116,38 @@ public class DataRepository : IDataRepository {
         return data;
     }
 
-    public bool InsertDestination(Destination d) {
+    public async Task<bool> InsertDestination(Destination d) {
         db.destination.AddRange(d);
-        db.SaveChanges();
-
-        return true;
+        return (await db.SaveChangesAsync()) > 0;
     }
 
-    public bool InsertTrip(Trip t) {
-        return true;
+    public async Task<bool> InsertTrip(Trip t) {
+        db.trip.AddRange(t);
+        return (await db.SaveChangesAsync()) > 0;
     }
 
-    public bool InsertTripUser(TripUser tu) {
-        return true;
+    public async Task<bool> InsertTripUser(TripUser tu) {
+        db.tripuser.AddRange(tu);
+        return (await db.SaveChangesAsync()) > 0;
     }
 
-    public bool UpdateDestination(Destination d, string id) {
-        return true;
+    public async Task<bool> UpdateDestination(Destination d, string id) {
+        // @TODO add adming privellages for destination editing || if createdby me
+        var record = db.destination.FirstOrDefault(r => r.id == id);
+        if (record == null) return false;
+        return (await db.SaveChangesAsync()) > 0;
     }
 
-    public bool UpdateTrip(Trip t, string id) {
-        return true;
+    public async Task<bool> UpdateTrip(Trip t, string id) {
+        var record = db.trip.FirstOrDefault(r => r.id == id);
+        if (record == null) return false;
+        return (await db.SaveChangesAsync()) > 0;
     }
 
-    public bool UpdateTripUser(TripUser tu, string id) {
-        return true;
+    public async Task<bool> UpdateTripUser(TripUser tu, string id) {
+        var record = db.tripuser.FirstOrDefault(r => r.id == id);
+        if (record == null) return false;
+        return (await db.SaveChangesAsync()) > 0;
     }
 
     public Tuple<bool, BaseModel> GetModelById(string model, string id) {

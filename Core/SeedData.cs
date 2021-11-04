@@ -1,14 +1,11 @@
-using Core.IData;
-using Core.Models;
-using Core.DataRep;
-using Core.ContextWrapper;
-using System.Linq;
-using BC = BCrypt.Net.BCrypt;
-
 namespace Core.SeedData;
 
 public class SeedRepository {
     public static async Task<bool> CreateMockData(TravelLogContext db, IHost app) {
+        if (db.destination.Any() || db.user.Any() || db.trip.Any() || db.trip.Any()) {
+            return Tuple.Create(false);
+        }
+
         Console.WriteLine("----------------------\nStarting seed...\n----------------------");
 
         var mockDestinations = new List<Destination> {
