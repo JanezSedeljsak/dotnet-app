@@ -1,4 +1,4 @@
-namespace Services.Translations;
+namespace Core.Services.Translations;
 
 public class TranslateService {
     // cache for translations {<langCode>_<classObj>: <key>: [actual translation]}}

@@ -1,8 +1,4 @@
-using Microsoft.OpenApi.Models;
-using Services.Translations;
-using Services.Response;
 using Core.SeedData;
-using Core.DataRep;
 
 var builder = WebApplication.CreateBuilder(args);
 var conStr = builder.Configuration.GetConnectionString("AppDb");

@@ -1,4 +1,4 @@
-namespace Core.IData;
+namespace Core.Interfaces;
 public interface IDataRepository {
     List<dynamic> GetCountries();
     List<dynamic> GetUsers();
@@ -24,6 +24,15 @@ public interface IAuthRepository {
 
 public interface ITokenService {
     string BuildToken(string key, string issuer, User user);
+}
+
+class StatusResponse {
+    public bool status { get; set; }
+    public string message { get; set; }
+    public StatusResponse(bool s, string m) {
+        status = s;
+        message = m;
+    }
 }
 
 public record AuthCredentials([Required] string email, [Required] string password);
