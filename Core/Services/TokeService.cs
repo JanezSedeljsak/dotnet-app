@@ -15,4 +15,15 @@ public class TokenService : ITokenService {
             expires: DateTime.Now.Add(ExpiryDuration), signingCredentials: credentials);
         return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
     }
+    public static void buildTokenOptions(JwtBearerOptions opt, WebApplicationBuilder builder) {
+        opt.TokenValidationParameters = new () {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    }
 }
