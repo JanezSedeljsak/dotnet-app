@@ -32,13 +32,13 @@ public class Region : ModelWithName {}
 public class Country : ModelWithName {
     public string? countryCode { get; set; }
     public Region? region { get; set; }
+    public string regionid { get; set; }
     public string GetShowAs() => $"{(countryCode == null ? "XXX" : countryCode)} - {name}";
 }
 
 public class User : BaseModel {
     public string? fullname { get; set; }
     public string? email { get; set; }
-
     public string? password { get; set; }
     public DateTime? birthdate { get; set; }
     public string GetShowAs() => fullname;
@@ -46,16 +46,20 @@ public class User : BaseModel {
 
 public class Destination : ModelWithName {
     public Country? country { get; set; }
+    public string countryid { get; set; }
 }
 
 public class Trip : ModelWithName {
     public Destination? destination { get; set; }
+    public string destinationid { get; set; }
     public DateTime? tripdate { get; set; }
 }
 
 public class TripUser : BaseModel {
     public Trip? trip { get; set; }
     public User? user { get; set; }
+    public string tripid { get; set; }
+    public string userid { get; set; }
 }
 
 public record AuthCredentials([Required] string email, [Required] string password);

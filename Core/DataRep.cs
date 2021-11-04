@@ -119,9 +119,40 @@ public class DataRepository : IDataRepository {
         return data;
     }
 
+    public bool InsertDestination(Destination d) {
+        db.destination.AddRange(d);
+        db.SaveChanges();
 
-    public Country GetCountryByName(string name) {
-        return db.country.Single(c => c.name == name);
+        return true;
+    }
+
+    public bool InsertTrip(Trip t) {
+        return true;
+    }
+
+    public bool InsertTripUser(TripUser tu) {
+        return true;
+    }
+
+    public bool UpdateDestination(Destination d, string id) {
+        return true;
+    }
+
+    public bool UpdateTrip(Trip t, string id) {
+        return true;
+    }
+
+    public bool UpdateTripUser(TripUser tu, string id) {
+        return true;
+    }
+
+    public Tuple<bool, BaseModel> GetModelById(string model, string id) {
+        string[] allowedModels = {"destinations", "users", "countries", "trips"};
+        if (allowedModels.Contains(model)) {
+            return Tuple.Create(true, db.GetDbSet(model).FirstOrDefault(row => row.id == id));
+        }
+
+        return Tuple.Create(false, new BaseModel());
     }
 
     public async Task<Tuple<bool, string>> SyncCountries() {

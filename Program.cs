@@ -78,11 +78,11 @@ app.MapGet("api/v1/sync/countries", async (IDataRepository db) => {
     return new StatusResponse(syncStatus, responseMsg);
 });
 
-app.MapGet("api/v1/pickers/{model}", (IDataRepository db, string model) => {
+app.MapGet("api/v1/pickers/{model}", [Authorize] (IDataRepository db, string model) => {
     return db.GetShowAsRows(model);
 });
 
-app.MapDelete("api/v1/deactivate/{model}/{id}", (IDataRepository db, string model, string id) => {
+app.MapDelete("api/v1/{model}/{id}", (IDataRepository db, string model, string id) => {
     var status = db.DeactivateColumn(model, id);
     return new StatusResponse(status, status == false ? "DEACTIVATE_FAILED" : "");
 });
@@ -97,10 +97,36 @@ app.MapGet("api/v1/{model}", (IDataRepository db, string model) => {
     };
 });
 
-app.MapGet("api/v1/country/{name}", [Authorize] async (HttpContext http, IDataRepository db, IAuthRepository auth, string name) => {
-    User currentUser = auth.ParseUser(http);
-    http.Response.WriteAsJsonAsync(db.GetCountryByName(name));
+app.MapGet("api/v1/{model}/{id}", (IDataRepository db, string model, string id) => {
+    var (status, data) = db.GetModelById(model, id);
+    return status == false ? null : data;
 });
+
+app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, IDataRepository db, string model) => {
+    var insertStatus = model switch {
+        "destinations" => db.InsertDestination(await http.Request.ReadFromJsonAsync<Destination>()),
+        "trip" => db.InsertTrip(await http.Request.ReadFromJsonAsync<Trip>()),
+        "tripuser" => db.InsertTripUser(await http.Request.ReadFromJsonAsync<TripUser>()),
+        _ => throw new Exception($"Invalid model name: {model}")
+    };
+
+    return new StatusResponse(insertStatus, (!insertStatus ? "DATA_INSERT_FAILED" : "DATA_INSERT_SUCCESS"));
+});
+
+/*app.MapPost("api/v1/bulk/trip", [Authorize] (IDataRepository db) => {
+    // @TODO insert trip & subdata
+});
+
+app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IDataRepository db, string model, string id) => {
+    var updateStatus = model switch {
+        "destinations" => db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>()),
+        "trip" => db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>()),
+        "tripuser" => db.UpdateTripUser(await http.Request.ReadFromJsonAsync<TripUser>()),
+        _ => throw new Exception($"Invalid model name: {model}")
+    };
+
+    return new StatusResponse(updateStatus, (!updateStatus ? "DATA_UPDATE_FAILED" : ""));
+});*/
 
 app.MapPost("api/v1/auth/register", async (HttpContext http, IAuthRepository db) => {
     var newUserData = await http.Request.ReadFromJsonAsync<User>();
