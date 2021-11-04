@@ -15,3 +15,4 @@ global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.EntityFrameworkCore;
 global using Core.Models;
 global using Core.ContextWrapper;
+global using Core.IData;

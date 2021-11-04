@@ -53,6 +53,7 @@ public class Trip : ModelWithName {
     public Destination? destination { get; set; }
     public string destinationid { get; set; }
     public DateTime? tripdate { get; set; }
+    public List<TripUser>? tripUsers { get; set; }
 }
 
 public class TripUser : BaseModel {
@@ -63,6 +64,4 @@ public class TripUser : BaseModel {
     public string tripid { get; set; }
     public string userid { get; set; }
 }
-
-public record AuthCredentials([Required] string email, [Required] string password);
 

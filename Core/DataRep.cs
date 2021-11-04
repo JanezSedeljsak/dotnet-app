@@ -1,4 +1,3 @@
-using Core.IData;
 using Newtonsoft.Json;
 
 namespace Core.DataRep;
@@ -137,6 +136,15 @@ public class DataRepository : IDataRepository {
 
     public async Task<bool> InsertTrip(Trip t) {
         db.trip.AddRange(t);
+        var tripUserList = t.tripUsers;
+
+        if (t.tripUsers != null) {
+            foreach (var user in t.tripUsers) {
+                user.tripid = t.id; // bind parent
+            }
+            db.tripuser.AddRange(tripUserList);
+        }
+       
         return (await db.SaveChangesAsync()) > 0;
     }
 
@@ -158,7 +166,26 @@ public class DataRepository : IDataRepository {
         if (record == null) return false;
         record.name = t.name != null ? t.name : record.name;
         record.tripdate = t.tripdate != null ? t.tripdate : record.tripdate;
-        return (await db.SaveChangesAsync()) > 0;
+        if ((await db.SaveChangesAsync()) <= 0) {
+            return false;
+        }
+
+        if (record.tripUsers != null) {
+            foreach (var tripUser in t.tripUsers) {
+                bool tmpStatus;
+                if (tripUser.id != null) {
+                    tmpStatus = await this.UpdateTripUser(tripUser, tripUser.id);
+                } else {
+                    tmpStatus = await this.InsertTripUser(tripUser);
+                }
+
+                if (!tmpStatus) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public async Task<bool> UpdateTripUser(TripUser tu, string id) {

@@ -25,3 +25,5 @@ public interface IAuthRepository {
 public interface ITokenService {
     string BuildToken(string key, string issuer, User user);
 }
+
+public record AuthCredentials([Required] string email, [Required] string password);

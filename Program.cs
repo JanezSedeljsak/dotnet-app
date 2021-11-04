@@ -2,7 +2,6 @@ using Microsoft.OpenApi.Models;
 using Services.Translations;
 using Services.Response;
 using Core.SeedData;
-using Core.IData;
 using Core.DataRep;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -109,10 +108,6 @@ app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, IDataReposito
 
     return new StatusResponse(insertStatus, (!insertStatus ? "DATA_INSERT_FAILED" : "DATA_INSERT_SUCCESS"));
 });
-
-/*app.MapPost("api/v1/bulk/trip", [Authorize] (IDataRepository db) => {
-    // @TODO insert trip & subdata
-});*/
 
 app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IDataRepository db, string model, string id) => {
     var updateStatus = model switch {
