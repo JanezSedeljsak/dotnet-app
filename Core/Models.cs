@@ -56,6 +56,8 @@ public class Trip : ModelWithName {
 }
 
 public class TripUser : BaseModel {
+    public int? rating { get; set; }
+    public string? notes { get; set; }
     public Trip? trip { get; set; }
     public User? user { get; set; }
     public string tripid { get; set; }

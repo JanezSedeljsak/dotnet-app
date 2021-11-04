@@ -3,7 +3,7 @@ namespace Core.SeedData;
 public class SeedRepository {
     public static async Task<bool> CreateMockData(TravelLogContext db, IHost app) {
         if (db.destination.Any() || db.user.Any() || db.trip.Any() || db.trip.Any()) {
-            return Tuple.Create(false);
+            return false;
         }
 
         Console.WriteLine("----------------------\nStarting seed...\n----------------------");
@@ -55,7 +55,7 @@ public class SeedRepository {
 
         db.destination.AddRange(mockDestinations);
         db.user.AddRange(mockUsers);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
         Console.WriteLine("----------------------\nFinished seed for users and destinations...\n----------------------");
 
         var mockTrips = new List<Trip> {
@@ -82,7 +82,7 @@ public class SeedRepository {
         };
 
         db.trip.AddRange(mockTrips);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
         Console.WriteLine("----------------------\nFinished seed for trips...\n----------------------");
 
         var mockTripUsers = new List<TripUser> {
@@ -121,7 +121,7 @@ public class SeedRepository {
         };
 
         db.tripuser.AddRange(mockTripUsers);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
         Console.WriteLine("----------------------\nFinished seed for user-trips...\n----------------------");
         Console.WriteLine("----------------------\nFinished seed...\n----------------------");
         return true;

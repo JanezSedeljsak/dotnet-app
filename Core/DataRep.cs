@@ -82,7 +82,9 @@ public class DataRepository : IDataRepository {
                 TripId = tu.trip.id,
                 FullName = u.fullname,
                 Email = u.email,
-                BirthDate = u.birthdate
+                BirthDate = u.birthdate,
+                Rating = tu.rating,
+                Notes = tu.notes
             }).ToList<dynamic>();
 
         var tripData = (
@@ -102,6 +104,17 @@ public class DataRepository : IDataRepository {
         
         var data = new List<dynamic>();
         foreach (var row in tripData) {
+            var userList = tripUsers.Where(u => u.TripId == row.Id).ToList<dynamic>();
+            var ratingSum = .0;
+            var ratingCount = 0;
+
+            foreach (var tripUser in userList) {
+                if (tripUser.Rating != null) {
+                    ratingSum += tripUser.Rating;
+                    ratingCount += 1;
+                }
+            }
+
             data.Add(new {
                 TripName = row.TripName,
                 TripDate = row.TripDate,
@@ -109,7 +122,8 @@ public class DataRepository : IDataRepository {
                 CountryName = row.CountryName,
                 RegionName = row.RegionName,
                 CountryCode = row.CountryCode,
-                UserList = tripUsers.Where(u => u.TripId == row.Id).ToList<dynamic>()
+                AvgRating = ratingCount != 0 ? ratingSum / (double)ratingCount : -1,
+                UserList = userList
             });
         }
 
@@ -135,18 +149,23 @@ public class DataRepository : IDataRepository {
         // @TODO add adming privellages for destination editing || if createdby me
         var record = db.destination.FirstOrDefault(r => r.id == id);
         if (record == null) return false;
+        record.name = d.name != null ? d.name : record.name;
         return (await db.SaveChangesAsync()) > 0;
     }
 
     public async Task<bool> UpdateTrip(Trip t, string id) {
         var record = db.trip.FirstOrDefault(r => r.id == id);
         if (record == null) return false;
+        record.name = t.name != null ? t.name : record.name;
+        record.tripdate = t.tripdate != null ? t.tripdate : record.tripdate;
         return (await db.SaveChangesAsync()) > 0;
     }
 
     public async Task<bool> UpdateTripUser(TripUser tu, string id) {
         var record = db.tripuser.FirstOrDefault(r => r.id == id);
         if (record == null) return false;
+        record.notes = tu.notes != null ? tu.notes : record.notes;
+        record.rating = tu.rating != null ? tu.rating : record.rating;
         return (await db.SaveChangesAsync()) > 0;
     }
 

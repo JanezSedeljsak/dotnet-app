@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Services.Translations;
 using Services.Response;
@@ -113,18 +112,18 @@ app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, IDataReposito
 
 /*app.MapPost("api/v1/bulk/trip", [Authorize] (IDataRepository db) => {
     // @TODO insert trip & subdata
-});
+});*/
 
 app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IDataRepository db, string model, string id) => {
     var updateStatus = model switch {
-        "destinations" => db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>()),
-        "trip" => db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>()),
-        "tripuser" => db.UpdateTripUser(await http.Request.ReadFromJsonAsync<TripUser>()),
+        "destinations" => await db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>(), id),
+        "trip" => await db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>(), id),
+        "tripuser" => await db.UpdateTripUser(await http.Request.ReadFromJsonAsync<TripUser>(), id),
         _ => throw new Exception($"Invalid model name: {model}")
     };
 
-    return new StatusResponse(updateStatus, (!updateStatus ? "DATA_UPDATE_FAILED" : ""));
-});*/
+    return new StatusResponse(updateStatus, (!updateStatus ? "DATA_UPDATE_FAILED" : "DATA_UPDATE_SUCCESS"));
+});
 
 app.MapPost("api/v1/auth/register", async (HttpContext http, IAuthRepository db) => {
     var newUserData = await http.Request.ReadFromJsonAsync<User>();
@@ -137,7 +136,7 @@ app.MapPost("api/v1/auth/login", async (HttpContext http, ITokenService tokenSer
     var (status, authUser, responseMessage) = db.GetAuth(userModel);
     if (!status) {
         http.Response.StatusCode = 401;
-        http.Response.WriteAsJsonAsync(new { message = responseMessage });
+        await http.Response.WriteAsJsonAsync(new { message = responseMessage });
     }
 
     var token = tokenService.BuildToken(builder.Configuration["Jwt:Key"], builder.Configuration["Jwt:Issuer"], authUser);
