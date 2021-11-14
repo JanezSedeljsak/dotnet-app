@@ -10,6 +10,7 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddAuthorization();
+builder.Services.AddCors();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt => TokenService.buildTokenOptions(opt, builder));
 
@@ -18,9 +19,16 @@ builder.Services.AddSwaggerGen(c => {
 });
 
 var app = builder.Build();
-app.UseSwaggerUI();
+app.UseCors(x => x
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true) // allow any origin
+    .AllowCredentials()); // allow credentials
+    
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSwaggerUI();
 app.UseSwagger(x => x.SerializeAsV2 = true);
 
 
@@ -113,7 +121,7 @@ app.MapPost("api/v1/auth/register", async (HttpContext http, IAuthRepository db)
     await http.Response.WriteAsJsonAsync(new { status = status, user = userCreated });
 });
 
-app.MapPost("api/v1/auth/login", async (HttpContext http, ITokenService tokenService, IAuthRepository db) => {
+app.MapPost("api/v1/auth/login", [AllowAnonymous] async (HttpContext http, ITokenService tokenService, IAuthRepository db) => {
     var userModel = await http.Request.ReadFromJsonAsync<AuthCredentials>();
     var (status, authUser, responseMessage) = db.GetAuth(userModel);
     if (!status) {
