@@ -93,8 +93,8 @@ app.MapGet("api/v1/{model}/{id}", (IDataRepository db, string model, string id) 
     return status == false ? null : data;
 });
 
-app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, TokenService auth, IDataRepository db, string model) => {
-    var (userId, _, _, _) = auth.destructureToken(http);
+app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, IDataRepository db, string model) => {
+    var (userId, _, _, _) = TokenService.destructureToken(http);
 
     var insertStatus = model switch {
         "destinations" => await db.InsertDestination(await http.Request.ReadFromJsonAsync<Destination>(), userId),
@@ -106,8 +106,8 @@ app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, TokenService 
     return new StatusResponse(insertStatus, (!insertStatus ? "DATA_INSERT_FAILED" : "DATA_INSERT_SUCCESS"));
 });
 
-app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, TokenService auth, IDataRepository db, string model, string id) => {
-    var (userId, _, isAdmin, _) = auth.destructureToken(http);
+app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IDataRepository db, string model, string id) => {
+    var (userId, _, isAdmin, _) = TokenService.destructureToken(http);
     var updateStatus = model switch {
         "destinations" => await db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>(), id, userId, isAdmin),
         "trip" => await db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>(), id, userId, isAdmin),

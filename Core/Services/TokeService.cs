@@ -29,7 +29,7 @@ public class TokenService : ITokenService {
         };
     }
 
-    public Tuple<String, String, bool, String> destructureToken(HttpContext http) => Tuple.Create(
+    public static Tuple<String, String, bool, String> destructureToken(HttpContext http) => Tuple.Create(
         http.User.FindFirstValue(ClaimTypes.PrimarySid),
         http.User.FindFirstValue(ClaimTypes.Email),
         http.User.FindFirstValue(ClaimTypes.Role) == "ADMIN",
