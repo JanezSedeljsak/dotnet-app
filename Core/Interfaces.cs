@@ -8,9 +8,9 @@ public interface IDataRepository {
     Task<bool> InsertDestination(Destination d, string userId);
     Task<bool> InsertTrip(Trip t, string userId);
     Task<bool> InsertTripUser(TripUser tu, string userId);
-    Task<bool> UpdateDestination(Destination d, string id, string userId);
-    Task<bool> UpdateTrip(Trip t, string id, string userId);
-    Task<bool> UpdateTripUser(TripUser tu, string id, string userId);
+    Task<bool> UpdateDestination(Destination d, string id, string userId, bool isAdmin);
+    Task<bool> UpdateTrip(Trip t, string id, string userId, bool isAdmin);
+    Task<bool> UpdateTripUser(TripUser tu, string id, string userId, bool isAdmin);
     Task<Tuple<bool, string>> SyncCountries();
     List<dynamic> GetShowAsRows(string modelName);
     Task<bool> DeactivateColumn(string modelName, string id);

@@ -107,11 +107,11 @@ app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, TokenService 
 });
 
 app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, TokenService auth, IDataRepository db, string model, string id) => {
-    var (userId, _, _, _) = auth.destructureToken(http);
+    var (userId, _, isAdmin, _) = auth.destructureToken(http);
     var updateStatus = model switch {
-        "destinations" => await db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>(), id, userId),
-        "trip" => await db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>(), id, userId),
-        "tripuser" => await db.UpdateTripUser(await http.Request.ReadFromJsonAsync<TripUser>(), id, userId),
+        "destinations" => await db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>(), id, userId, isAdmin),
+        "trip" => await db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>(), id, userId, isAdmin),
+        "tripuser" => await db.UpdateTripUser(await http.Request.ReadFromJsonAsync<TripUser>(), id, userId, isAdmin),
         _ => throw new Exception($"Invalid model name: {model}")
     };
 

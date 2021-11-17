@@ -129,13 +129,13 @@ public class DataRepository : IDataRepository {
         return data;
     }
 
-    public async Task<bool> InsertDestination(Destination d, String userId) {
+    public async Task<bool> InsertDestination(Destination d, string userId) {
         d.createdBy = userId;
         db.destination.AddRange(d);
         return (await db.SaveChangesAsync()) > 0;
     }
 
-    public async Task<bool> InsertTrip(Trip t, String userId) {
+    public async Task<bool> InsertTrip(Trip t, string userId) {
         t.createdBy = userId;
         db.trip.AddRange(t);
         var tripUserList = t.tripUsers;
@@ -150,23 +150,28 @@ public class DataRepository : IDataRepository {
         return (await db.SaveChangesAsync()) > 0;
     }
 
-    public async Task<bool> InsertTripUser(TripUser tu, String userId) {
+    public async Task<bool> InsertTripUser(TripUser tu, string userId) {
         tu.createdBy = userId;
         db.tripuser.AddRange(tu);
         return (await db.SaveChangesAsync()) > 0;
     }
 
-    public async Task<bool> UpdateDestination(Destination d, string id, String userId) {
-        // @TODO add adming privellages for destination editing || if createdby me
+    public async Task<bool> UpdateDestination(Destination d, string id, string userId, bool isAdmin) {
         var record = db.destination.FirstOrDefault(r => r.id == id);
-        if (record == null) return false;
+        if (record == null || !record.AllowEdit(userId, isAdmin)) {
+            return false;
+        }
+
         record.name = d.name != null ? d.name : record.name;
         return (await db.SaveChangesAsync()) > 0;
     }
 
-    public async Task<bool> UpdateTrip(Trip t, string id, String userId) {
+    public async Task<bool> UpdateTrip(Trip t, string id, string userId, bool isAdmin) {
         var record = db.trip.FirstOrDefault(r => r.id == id);
-        if (record == null) return false;
+        if (record == null || !record.AllowEdit(userId, false)) {
+            return false;
+        }
+
         record.name = t.name != null ? t.name : record.name;
         record.tripdate = t.tripdate != null ? t.tripdate : record.tripdate;
         if ((await db.SaveChangesAsync()) <= 0) {
@@ -177,7 +182,7 @@ public class DataRepository : IDataRepository {
             foreach (var tripUser in t.tripUsers) {
                 bool tmpStatus;
                 if (tripUser.id != null) {
-                    tmpStatus = await this.UpdateTripUser(tripUser, tripUser.id, userId);
+                    tmpStatus = await this.UpdateTripUser(tripUser, tripUser.id, userId, isAdmin);
                 } else {
                     tmpStatus = await this.InsertTripUser(tripUser, userId);
                 }
@@ -191,9 +196,12 @@ public class DataRepository : IDataRepository {
         return true;
     }
 
-    public async Task<bool> UpdateTripUser(TripUser tu, string id, String userId) {
+    public async Task<bool> UpdateTripUser(TripUser tu, string id, string userId, bool isAdmin) {
         var record = db.tripuser.FirstOrDefault(r => r.id == id);
-        if (record == null) return false;
+        if (record == null || !record.AllowEdit(userId, isAdmin)) {
+            return false;
+        }
+
         record.notes = tu.notes != null ? tu.notes : record.notes;
         record.rating = tu.rating != null ? tu.rating : record.rating;
         return (await db.SaveChangesAsync()) > 0;
