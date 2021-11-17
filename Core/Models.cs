@@ -5,12 +5,15 @@ public class BaseModel {
 
     public DateTime createdAt { get; set; }
 
+    public string createdBy { get; set; }
+
     public bool isActive { get; set; }
 
     public BaseModel() {
         createdAt = DateTime.Now;
         isActive = true;
         id = Guid.NewGuid().ToString();
+        createdBy = "NOT_DEFINED";
     }
 
     public string GetShowAs() {
@@ -41,7 +44,11 @@ public class User : BaseModel {
     public string? email { get; set; }
     public string? password { get; set; }
     public DateTime? birthdate { get; set; }
+    public bool? isAdmin { get; set; }
     public string GetShowAs() => fullname;
+    public User() {
+        isAdmin = false;
+    }
 }
 
 public class Destination : ModelWithName {

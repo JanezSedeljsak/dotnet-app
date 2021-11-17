@@ -4,9 +4,10 @@ public class TokenService : ITokenService {
     private TimeSpan ExpiryDuration = new TimeSpan(0, 30, 0);
     public string BuildToken(string key, string issuer, User user) {
         var claims = new[] {
-            new Claim(ClaimTypes.Name, user.id),
-            new Claim(ClaimTypes.NameIdentifier,
-            Guid.NewGuid().ToString())
+            new Claim(ClaimTypes.PrimarySid, user.id),
+            new Claim(ClaimTypes.Email, user.email),
+            new Claim(ClaimTypes.AuthenticationMethod, (user.isAdmin == true ? "ADMIN" : "NOT_ADMIN")),
+            new Claim(ClaimTypes.Hash, Guid.NewGuid().ToString())
         };
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
@@ -26,4 +27,10 @@ public class TokenService : ITokenService {
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     }
+
+    public Tuple<String, String, bool> destructureToken(HttpContext http) => Tuple.Create(
+        http.User.FindFirstValue(ClaimTypes.PrimarySid),
+        http.User.FindFirstValue(ClaimTypes.Email),
+        http.User.FindFirstValue(ClaimTypes.AuthenticationMethod) == "ADMIN"
+    );
 }

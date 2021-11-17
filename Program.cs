@@ -93,7 +93,9 @@ app.MapGet("api/v1/{model}/{id}", (IDataRepository db, string model, string id) 
     return status == false ? null : data;
 });
 
-app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, IDataRepository db, string model) => {
+app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, TokenService auth, IDataRepository db, string model) => {
+    var (userId, email, isAdmin) = auth.destructureToken(http);
+    
     var insertStatus = model switch {
         "destinations" => await db.InsertDestination(await http.Request.ReadFromJsonAsync<Destination>()),
         "trip" => await db.InsertTrip(await http.Request.ReadFromJsonAsync<Trip>()),
