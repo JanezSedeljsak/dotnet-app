@@ -20,6 +20,10 @@ public class BaseModel {
         return "GET_SHOW_AS_NOT_DEFINED";
     }
 
+    public bool AllowEdit(String userId, bool isAdmin) {
+        return isAdmin || userId == this.createdBy;
+    }
+
     public void Deactivate() {
         isActive = false;
     }
@@ -45,9 +49,11 @@ public class User : BaseModel {
     public string? password { get; set; }
     public DateTime? birthdate { get; set; }
     public bool? isAdmin { get; set; }
+    public string? langCode { get; set; }
     public string GetShowAs() => fullname;
     public User() {
         isAdmin = false;
+        langCode = "en";
     }
 }
 

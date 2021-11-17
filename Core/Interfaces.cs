@@ -5,12 +5,12 @@ public interface IDataRepository {
     List<dynamic> GetDestinations();
     List<dynamic> GetTrips();
     Tuple<bool, BaseModel> GetModelById(string model, string id);
-    Task<bool> InsertDestination(Destination d);
-    Task<bool> InsertTrip(Trip t);
-    Task<bool> InsertTripUser(TripUser tu);
-    Task<bool> UpdateDestination(Destination d, string id);
-    Task<bool> UpdateTrip(Trip t, string id);
-    Task<bool> UpdateTripUser(TripUser tu, string id);
+    Task<bool> InsertDestination(Destination d, string userId);
+    Task<bool> InsertTrip(Trip t, string userId);
+    Task<bool> InsertTripUser(TripUser tu, string userId);
+    Task<bool> UpdateDestination(Destination d, string id, string userId);
+    Task<bool> UpdateTrip(Trip t, string id, string userId);
+    Task<bool> UpdateTripUser(TripUser tu, string id, string userId);
     Task<Tuple<bool, string>> SyncCountries();
     List<dynamic> GetShowAsRows(string modelName);
     Task<bool> DeactivateColumn(string modelName, string id);

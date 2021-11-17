@@ -94,23 +94,24 @@ app.MapGet("api/v1/{model}/{id}", (IDataRepository db, string model, string id) 
 });
 
 app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, TokenService auth, IDataRepository db, string model) => {
-    var (userId, email, isAdmin) = auth.destructureToken(http);
-    
+    var (userId, _, _, _) = auth.destructureToken(http);
+
     var insertStatus = model switch {
-        "destinations" => await db.InsertDestination(await http.Request.ReadFromJsonAsync<Destination>()),
-        "trip" => await db.InsertTrip(await http.Request.ReadFromJsonAsync<Trip>()),
-        "tripuser" => await db.InsertTripUser(await http.Request.ReadFromJsonAsync<TripUser>()),
+        "destinations" => await db.InsertDestination(await http.Request.ReadFromJsonAsync<Destination>(), userId),
+        "trip" => await db.InsertTrip(await http.Request.ReadFromJsonAsync<Trip>(), userId),
+        "tripuser" => await db.InsertTripUser(await http.Request.ReadFromJsonAsync<TripUser>(), userId),
         _ => throw new Exception($"Invalid model name: {model}")
     };
 
     return new StatusResponse(insertStatus, (!insertStatus ? "DATA_INSERT_FAILED" : "DATA_INSERT_SUCCESS"));
 });
 
-app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IDataRepository db, string model, string id) => {
+app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, TokenService auth, IDataRepository db, string model, string id) => {
+    var (userId, _, _, _) = auth.destructureToken(http);
     var updateStatus = model switch {
-        "destinations" => await db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>(), id),
-        "trip" => await db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>(), id),
-        "tripuser" => await db.UpdateTripUser(await http.Request.ReadFromJsonAsync<TripUser>(), id),
+        "destinations" => await db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>(), id, userId),
+        "trip" => await db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>(), id, userId),
+        "tripuser" => await db.UpdateTripUser(await http.Request.ReadFromJsonAsync<TripUser>(), id, userId),
         _ => throw new Exception($"Invalid model name: {model}")
     };
 

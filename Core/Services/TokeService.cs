@@ -6,7 +6,8 @@ public class TokenService : ITokenService {
         var claims = new[] {
             new Claim(ClaimTypes.PrimarySid, user.id),
             new Claim(ClaimTypes.Email, user.email),
-            new Claim(ClaimTypes.AuthenticationMethod, (user.isAdmin == true ? "ADMIN" : "NOT_ADMIN")),
+            new Claim(ClaimTypes.Country, user.langCode != null ? user.langCode : "en"),
+            new Claim(ClaimTypes.Role, (user.isAdmin == true ? "ADMIN" : "NOT_ADMIN")),
             new Claim(ClaimTypes.Hash, Guid.NewGuid().ToString())
         };
 
@@ -28,9 +29,10 @@ public class TokenService : ITokenService {
         };
     }
 
-    public Tuple<String, String, bool> destructureToken(HttpContext http) => Tuple.Create(
+    public Tuple<String, String, bool, String> destructureToken(HttpContext http) => Tuple.Create(
         http.User.FindFirstValue(ClaimTypes.PrimarySid),
         http.User.FindFirstValue(ClaimTypes.Email),
-        http.User.FindFirstValue(ClaimTypes.AuthenticationMethod) == "ADMIN"
+        http.User.FindFirstValue(ClaimTypes.Role) == "ADMIN",
+        http.User.FindFirstValue(ClaimTypes.Country)
     );
 }
