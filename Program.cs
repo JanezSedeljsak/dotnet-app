@@ -83,9 +83,14 @@ app.MapGet("api/v1/{model}", (IDataRepository db, string model) => {
         "countries" => db.GetCountries(),
         "users" => db.GetUsers(),
         "destinations" => db.GetDestinations(),
-        "trips" => db.GetTrips(),
+        "trips" => db.GetTrips(null),
         _ => throw new Exception($"Invalid model name: {model}")
     };
+});
+
+app.MapGet("api/v1/my-trips", [Authorize] async (HttpContext http, IDataRepository db, string model) => {
+    var (userId, _, _, _) = TokenService.destructureToken(http);
+    return db.GetTrips(userId);
 });
 
 app.MapGet("api/v1/{model}/{id}", (IDataRepository db, string model, string id) => {
@@ -136,4 +141,9 @@ app.MapPost("api/v1/auth/login", [AllowAnonymous] async (HttpContext http, IToke
     await http.Response.WriteAsJsonAsync(new { token = token });
 });
 
+app.MapGet("api/v1/popular-destinations", [AllowAnonymous] async (HttpContext http, IDataRepository db) => {
+    var destinations = db.PopularDestinations();
+    //var token = tokenService.BuildToken(builder.Configuration["Jwt:Key"], builder.Configuration["Jwt:Issuer"], authUser);
+    await http.Response.WriteAsJsonAsync(destinations);
+});
 app.Run();

@@ -73,7 +73,7 @@ public class DataRepository : IDataRepository {
         return data;
     }
 
-     public List<dynamic> GetTrips() {
+     public List<dynamic> GetTrips(String userId) {
         var tripUsers = (
             from tu in db.tripuser
             join u in db.user on tu.user.id equals u.id
@@ -83,7 +83,8 @@ public class DataRepository : IDataRepository {
                 Email = u.email,
                 BirthDate = u.birthdate,
                 Rating = tu.rating,
-                Notes = tu.notes
+                Notes = tu.notes,
+                UserId = u.id
             }).ToList<dynamic>();
 
         var tripData = (
@@ -114,6 +115,10 @@ public class DataRepository : IDataRepository {
                 }
             }
 
+            if (userId != null && !userList.Any(x => x.UserId == userId)) {
+                continue;
+            }
+
             data.Add(new {
                 TripName = row.TripName,
                 TripDate = row.TripDate,
@@ -126,7 +131,7 @@ public class DataRepository : IDataRepository {
             });
         }
 
-        return data;
+        return data.OrderByDescending(o => o.TripDate).ToList();
     }
 
     public async Task<bool> InsertDestination(Destination d, string userId) {
@@ -257,5 +262,21 @@ public class DataRepository : IDataRepository {
         db.SaveChanges();
      
         return Tuple.Create(true, "SYNC_SUCCESS");
+    }
+
+    public List<dynamic> PopularDestinations() {
+        var topDestinations = (
+            from t in db.trip
+            join d in db.destination on t.destination.id equals d.id
+            join c in db.country on t.destination.country.id equals c.id
+            select new { 
+                DestinationId = t.destinationid,
+                TripName = t.name,
+                TripDate = t.tripdate,
+                Destination = d.name,
+                Country = c.name
+            }).ToList<dynamic>();  
+            
+        return topDestinations;
     }
 }

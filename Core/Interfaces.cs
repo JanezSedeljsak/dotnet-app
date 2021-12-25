@@ -3,7 +3,7 @@ public interface IDataRepository {
     List<dynamic> GetCountries();
     List<dynamic> GetUsers();
     List<dynamic> GetDestinations();
-    List<dynamic> GetTrips();
+    List<dynamic> GetTrips(String userId);
     Tuple<bool, BaseModel> GetModelById(string model, string id);
     Task<bool> InsertDestination(Destination d, string userId);
     Task<bool> InsertTrip(Trip t, string userId);
@@ -14,6 +14,7 @@ public interface IDataRepository {
     Task<Tuple<bool, string>> SyncCountries();
     List<dynamic> GetShowAsRows(string modelName);
     Task<bool> DeactivateColumn(string modelName, string id);
+    List<dynamic> PopularDestinations();
 }
 
 public interface IAuthRepository {
