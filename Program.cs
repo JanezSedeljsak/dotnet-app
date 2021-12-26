@@ -128,7 +128,7 @@ app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IDataRepo
     return new StatusResponse(updateStatus, (!updateStatus ? "DATA_UPDATE_FAILED" : "DATA_UPDATE_SUCCESS"));
 });
 
-app.MapPost("api/v1/auth/register", async (HttpContext http, IAuthRepository db) => {
+app.MapPost("api/v1/auth/register", [AllowAnonymous] async (HttpContext http, IAuthRepository db) => {
     var newUserData = await http.Request.ReadFromJsonAsync<User>();
     var (status, userCreated) = db.AuthRegister(newUserData);
     await http.Response.WriteAsJsonAsync(new { status = status, user = userCreated });

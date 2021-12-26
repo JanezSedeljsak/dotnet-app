@@ -7,12 +7,11 @@ public class AuthRepository : IAuthRepository {
     public AuthRepository(TravelLogContext db) {
         this.db = db;
     }
-
     public Tuple<bool, User> AuthRegister(User user) {
         var newUser = new User {
             fullname = user.fullname,
-            birthdate = user.birthdate,
             email = user.email,
+            isAdmin = false,
             password = BCrypt.Net.BCrypt.HashPassword(user.password),
         };
 
