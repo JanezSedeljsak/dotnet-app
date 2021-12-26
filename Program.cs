@@ -1,8 +1,8 @@
 using Core.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
-var conStr = builder.Configuration.GetConnectionString("AppDb");
-builder.Services.AddDbContext<TravelLogContext>(x => x.UseMySql(conStr, new MySqlServerVersion(new Version(10, 5, 4))));
+var conStr = builder.Configuration.GetConnectionString("ProdDb");
+builder.Services.AddDbContext<TravelLogContext>(x => x.UseSqlServer(conStr));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IDataRepository, DataRepository>();

@@ -22,8 +22,8 @@ public class TravelLogContext : DbContext {
             .AddJsonFile("appsettings.json")
             .Build();
 
-        var conStr = conf.GetConnectionString("AppDb");
-        optionsBuilder.UseMySql(conStr, new MySqlServerVersion(new Version(10, 5)));
+        var conStr = conf.GetConnectionString("ProdDb");
+        optionsBuilder.UseSqlServer(conStr);
     }
 }
 
