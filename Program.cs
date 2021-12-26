@@ -78,7 +78,7 @@ app.MapDelete("api/v1/{model}/{id}", async (IDataRepository db, string model, st
     return new StatusResponse(status, status == false ? "DEACTIVATE_FAILED" : "");
 });
 
-app.MapGet("api/v1/{model}", (IDataRepository db, string model) => {
+app.MapGet("api/v1/{model}", [AllowAnonymous] (IDataRepository db, string model) => {
     return model switch {
         "countries" => db.GetCountries(),
         "users" => db.GetUsers(),
@@ -141,9 +141,14 @@ app.MapPost("api/v1/auth/login", [AllowAnonymous] async (HttpContext http, IToke
     await http.Response.WriteAsJsonAsync(new { token = token });
 });
 
-app.MapGet("api/v1/popular-destinations", [AllowAnonymous] async (HttpContext http, IDataRepository db) => {
+app.MapGet("api/v1/stats/popular-destinations", [AllowAnonymous] async (HttpContext http, IDataRepository db) => {
     var destinations = db.PopularDestinations();
-    //var token = tokenService.BuildToken(builder.Configuration["Jwt:Key"], builder.Configuration["Jwt:Issuer"], authUser);
     await http.Response.WriteAsJsonAsync(destinations);
 });
+
+app.MapGet("api/v1/stats/active-users", [AllowAnonymous] async (HttpContext http, IDataRepository db) => {
+    var topUsers = db.GetUsers();
+    await http.Response.WriteAsJsonAsync(topUsers);
+});
+
 app.Run();
