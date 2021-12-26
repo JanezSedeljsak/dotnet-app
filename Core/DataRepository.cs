@@ -273,7 +273,7 @@ public class DataRepository : IDataRepository {
                 DestinationId = t.destinationid,
                 TripName = t.name,
                 TripDate = t.tripdate,
-                Destination = d.name,
+                Name = d.name,
                 Country = c.name
             }).ToList<dynamic>();  
             
