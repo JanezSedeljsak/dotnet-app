@@ -63,6 +63,7 @@ public class DataRepository : IDataRepository {
     public List<dynamic> GetUsers() {
         var data = (
             from u in db.user
+            where u.isAdmin == false
             select new {
                 Id = u.id,
                 FullName = u.fullname,
@@ -278,5 +279,10 @@ public class DataRepository : IDataRepository {
             }).ToList<dynamic>();  
             
         return topDestinations;
+    }
+
+    public User GetUserById(String userId) {
+        var record = db.user.FirstOrDefault(u => u.id == userId);
+        return record;
     }
 }

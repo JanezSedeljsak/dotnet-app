@@ -15,6 +15,7 @@ public interface IDataRepository {
     List<dynamic> GetShowAsRows(string modelName);
     Task<bool> DeactivateColumn(string modelName, string id);
     List<dynamic> PopularDestinations();
+    User GetUserById(String userId);
 }
 
 public interface IAuthRepository {

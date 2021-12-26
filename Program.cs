@@ -93,6 +93,11 @@ app.MapGet("api/v1/my-trips", [Authorize] async (HttpContext http, IDataReposito
     return db.GetTrips(userId);
 });
 
+app.MapGet("api/v1/my-profile", [Authorize] async (HttpContext http, IDataRepository db, string model) => {
+    var (userId, _, _, _) = TokenService.destructureToken(http);
+    return db.GetUserById(userId);
+});
+
 app.MapGet("api/v1/{model}/{id}", (IDataRepository db, string model, string id) => {
     var (status, data) = db.GetModelById(model, id);
     return status == false ? null : data;
