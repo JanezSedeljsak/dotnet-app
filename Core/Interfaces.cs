@@ -15,12 +15,13 @@ public interface IDataRepository {
     List<dynamic> GetShowAsRows(string modelName);
     Task<bool> DeactivateColumn(string modelName, string id);
     List<dynamic> PopularDestinations();
-    User GetUserById(String userId);
+    dynamic GetUserById(String userId);
 }
 
 public interface IAuthRepository {
     Tuple<bool, User> AuthRegister(User user);
     Tuple<bool, User, string> GetAuth(AuthCredentials credentials);
+    Task<bool> UpdateUser(UserUpdateModel u, string userId, bool isAdmin);
     User ParseUser(HttpContext http);
 }
 

@@ -281,8 +281,15 @@ public class DataRepository : IDataRepository {
         return topDestinations;
     }
 
-    public User GetUserById(String userId) {
-        var record = db.user.FirstOrDefault(u => u.id == userId);
+    public dynamic GetUserById(String userId) {
+        var record = (from u in db.user select new {
+            id = u.id,
+            fullname = u.fullname,
+            email = u.email,
+            createdAt = u.createdAt,
+            langCode = u.langCode,
+            birthdate = u.birthdate
+        }).FirstOrDefault(u => u.id == userId);
         return record;
     }
 }

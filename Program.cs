@@ -116,12 +116,13 @@ app.MapPost("api/v1/{model}", [Authorize] async (HttpContext http, IDataReposito
     return new StatusResponse(insertStatus, (!insertStatus ? "DATA_INSERT_FAILED" : "DATA_INSERT_SUCCESS"));
 });
 
-app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IDataRepository db, string model, string id) => {
+app.MapPut("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IAuthRepository adb, IDataRepository db, string model, string id) => {
     var (userId, _, isAdmin, _) = TokenService.destructureToken(http);
     var updateStatus = model switch {
         "destinations" => await db.UpdateDestination(await http.Request.ReadFromJsonAsync<Destination>(), id, userId, isAdmin),
         "trip" => await db.UpdateTrip(await http.Request.ReadFromJsonAsync<Trip>(), id, userId, isAdmin),
         "tripuser" => await db.UpdateTripUser(await http.Request.ReadFromJsonAsync<TripUser>(), id, userId, isAdmin),
+        "user" => await adb.UpdateUser(await http.Request.ReadFromJsonAsync<UserUpdateModel>(), userId, isAdmin),
         _ => throw new Exception($"Invalid model name: {model}")
     };
 
