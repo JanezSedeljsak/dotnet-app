@@ -144,7 +144,7 @@ app.MapPost("api/v1/auth/login", [AllowAnonymous] async (HttpContext http, IToke
     }
 
     var token = tokenService.BuildToken(builder.Configuration["Jwt:Key"], builder.Configuration["Jwt:Issuer"], authUser);
-    await http.Response.WriteAsJsonAsync(new { token = token });
+    await http.Response.WriteAsJsonAsync(new { token = token, isAdmin = authUser.isAdmin });
 });
 
 app.MapGet("api/v1/stats/popular-destinations", [AllowAnonymous] async (HttpContext http, IDataRepository db) => {
