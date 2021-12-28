@@ -269,16 +269,14 @@ public class DataRepository : IDataRepository {
         var topDestinations = (
             from t in db.trip
             join d in db.destination on t.destination.id equals d.id
-            join c in db.country on t.destination.country.id equals c.id
-            select new { 
-                DestinationId = t.destinationid,
-                TripName = t.name,
-                TripDate = t.tripdate,
-                Name = d.name,
-                Country = c.name
+            group d by t.destination.id into g
+            select new {
+                DestinationId = g.Key,
+                Name = g.Select(g => g.name).FirstOrDefault(),
+                Count = g.Count()
             }).ToList<dynamic>();  
             
-        return topDestinations;
+        return topDestinations.OrderByDescending(o => o.Count).Take(5).ToList();
     }
 
     public dynamic GetUserById(String userId) {
