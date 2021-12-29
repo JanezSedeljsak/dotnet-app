@@ -269,11 +269,27 @@ public class DataRepository : IDataRepository {
         var topDestinations = (
             from t in db.trip
             join d in db.destination on t.destination.id equals d.id
-            group d by t.destination.id into g
+            group t by t.destination.id into g
             select new {
                 DestinationId = g.Key,
-                Name = g.Select(g => g.name).FirstOrDefault(),
-                Count = g.Count()
+                Name = g.Select(g => g.destination.name).FirstOrDefault(),
+                Country = g.Select(g => g.destination.country.name).FirstOrDefault(),
+                Trips = g.Select(g => g.name),
+                Count = g.Count(),
+            }).ToList<dynamic>();  
+            
+        return topDestinations.OrderByDescending(o => o.Count).Take(5).ToList();
+    }
+
+    public List<dynamic> GetActiveUsers() {
+        var topDestinations = (
+            from tu in db.tripuser
+            group tu by tu.user.id into g
+            select new {
+                UserId = g.Key,
+                User = g.Select(g => g.user).FirstOrDefault(),
+                Visited = g.Select(g => g.trip.destination.name).Distinct(),
+                Count = g.Count(),
             }).ToList<dynamic>();  
             
         return topDestinations.OrderByDescending(o => o.Count).Take(5).ToList();

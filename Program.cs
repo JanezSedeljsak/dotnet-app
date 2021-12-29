@@ -153,7 +153,7 @@ app.MapGet("api/v1/stats/popular-destinations", [AllowAnonymous] async (HttpCont
 });
 
 app.MapGet("api/v1/stats/active-users", [AllowAnonymous] async (HttpContext http, IDataRepository db) => {
-    var topUsers = db.GetUsers();
+    var topUsers = db.GetActiveUsers();
     await http.Response.WriteAsJsonAsync(topUsers);
 });
 
