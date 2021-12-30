@@ -69,7 +69,21 @@ public class DataRepository : IDataRepository {
                 Id = u.id,
                 FullName = u.fullname,
                 Email = u.email,
-                BirthDate = u.birthdate
+                BirthDate = u.birthdate,
+                Trips = (
+                    from tu in db.tripuser
+                    join t in db.trip on tu.tripid equals t.id
+                    join d in db.destination on t.destinationid equals d.id
+                    join c in db.country on d.countryid equals c.id
+                    where tu.userid == u.id
+                    select new {
+                        Id = t.id,
+                        TripName = t.name,
+                        TripDate = t.tripdate,
+                        Destination = d.name,
+                        CountryName = c.name,
+                    }
+                ).ToList<dynamic>()
             }).ToList<dynamic>();
 
         return data;
