@@ -15,6 +15,7 @@ global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.AspNetCore.Authorization; 
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.OpenApi.Models;
+global using Microsoft.AspNetCore.Mvc;
 
 global using Core.AuthRepositoryWrapper;
 global using Core.DataRepositoryWrapper;
@@ -24,3 +25,8 @@ global using Core.Interfaces;
 
 global using Core.Services.Translations;
 global using Core.Services.TokenServiceWrapper;
+global using Core.Services.PDFGenerator;
+
+// added pdf services
+global using DinkToPdf;
+global using DinkToPdf.Contracts;

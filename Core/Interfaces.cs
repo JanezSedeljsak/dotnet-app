@@ -17,6 +17,8 @@ public interface IDataRepository {
     List<dynamic> PopularDestinations();
     dynamic GetUserById(String userId);
     List<dynamic> GetActiveUsers();
+    List<dynamic> TopCountries();
+    List<dynamic> AvgTripsPerMonth();
 }
 
 public interface IAuthRepository {

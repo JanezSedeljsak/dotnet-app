@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace Core.DataRepositoryWrapper;
 
@@ -293,6 +294,51 @@ public class DataRepository : IDataRepository {
             }).ToList<dynamic>();  
             
         return topDestinations.OrderByDescending(o => o.Count).Take(5).ToList();
+    }
+
+    public List<dynamic> TopCountries() {
+        var topDestinations = (
+            from t in db.trip
+            join d in db.destination on t.destination.id equals d.id
+            join c in db.country on d.countryid equals c.id 
+            group c by c.id into g
+            select new {
+                CountryId = g.Key,
+                CountryName = g.Select(g => g.name).FirstOrDefault(),
+                Count = g.Count()
+            }).ToList<dynamic>();  
+            
+        return topDestinations.OrderByDescending(o => o.Count).Take(5).ToList();
+    }
+
+    public List<dynamic> AvgTripsPerMonth() {
+        var tripData = (
+            from t in db.trip
+            group t by t.tripdate.Value.Month into g
+            select new {
+                Month = g.Key,
+                Count = g.Count()
+            }
+        ).ToList<dynamic>();
+
+        dynamic[] grouppedData = new dynamic[12];
+        for (int i = 0; i < 12; i++) {
+            grouppedData[i] = new {
+                Month = i+1,
+                MonthName = new DateTime(2015, i+1, 1).ToString("MMMM", CultureInfo.CreateSpecificCulture("en")),
+                Count = 0
+            };
+        }
+
+        foreach (dynamic trip in tripData) {
+            grouppedData[trip.Month-1] = new {
+                Month = trip.Month,
+                MonthName = grouppedData[trip.Month-1].MonthName,
+                Count = trip.Count
+            };
+        }
+
+        return grouppedData.ToList<dynamic>();
     }
 
     public dynamic GetUserById(String userId) {
