@@ -24,10 +24,14 @@ public class DataRepository : IDataRepository {
         return result;
     }
 
-    public async Task<bool> DeactivateColumn(string modelName, string id) {
+    public async Task<bool> DeactivateColumn(string modelName, string id, string userId, bool isAdmin) {
+        Console.WriteLine($"Deleting -> {id}");
         var dbRow = db.GetDbSet(modelName).FirstOrDefault(row => row.id == id);
-        dbRow.Deactivate();
-        return (await db.SaveChangesAsync()) > 0;
+        if (isAdmin || dbRow.createdBy == userId) {
+            dbRow.Deactivate();
+            return (await db.SaveChangesAsync()) > 0;
+        }
+        return false;
     }
 
     public List<dynamic> GetCountries() {
@@ -76,6 +80,7 @@ public class DataRepository : IDataRepository {
                     join d in db.destination on t.destinationid equals d.id
                     join c in db.country on d.countryid equals c.id
                     where tu.userid == u.id
+                    where t.isActive == true
                     select new {
                         Id = t.id,
                         TripName = t.name,
@@ -108,6 +113,7 @@ public class DataRepository : IDataRepository {
             join d in db.destination on t.destination.id equals d.id
             join c in db.country on d.country.id equals c.id
             join r in db.region on c.region.id equals r.id
+            where t.isActive == true
             select new { 
                 Id = t.id,
                 TripName = t.name,
@@ -115,7 +121,8 @@ public class DataRepository : IDataRepository {
                 Destination = d.name,
                 CountryName = c.name,
                 RegionName = r.name,
-                CountryCode = c.countryCode
+                CountryCode = c.countryCode,
+                CreatedBy = t.createdBy,
             }).ToList<dynamic>();
         
         var data = new List<dynamic>();
@@ -136,12 +143,14 @@ public class DataRepository : IDataRepository {
             }
 
             data.Add(new {
+                Id = row.Id,
                 TripName = row.TripName,
                 TripDate = row.TripDate,
                 Destination = row.Destination,
                 CountryName = row.CountryName,
                 RegionName = row.RegionName,
                 CountryCode = row.CountryCode,
+                CreatedBy = row.CreatedBy,
                 AvgRating = ratingCount != 0 ? ratingSum / (double)ratingCount : -1,
                 UserList = userList
             });
@@ -284,6 +293,7 @@ public class DataRepository : IDataRepository {
         var topDestinations = (
             from t in db.trip
             join d in db.destination on t.destination.id equals d.id
+            where t.isActive == true
             group t by t.destination.id into g
             select new {
                 DestinationId = g.Key,
@@ -315,6 +325,7 @@ public class DataRepository : IDataRepository {
             from t in db.trip
             join d in db.destination on t.destination.id equals d.id
             join c in db.country on d.countryid equals c.id 
+            where t.isActive == true
             group c by c.id into g
             select new {
                 CountryId = g.Key,
@@ -328,6 +339,7 @@ public class DataRepository : IDataRepository {
     public List<dynamic> AvgTripsPerMonth() {
         var tripData = (
             from t in db.trip
+            where t.isActive == true
             group t by t.tripdate.Value.Month into g
             select new {
                 Month = g.Key,

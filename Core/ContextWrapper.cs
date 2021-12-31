@@ -13,6 +13,7 @@ public class TravelLogContext : DbContext {
             "countries" => country,
             "users" => user,
             "destinations" => destination,
+            "trips" => trip,
             _ => throw new Exception($"Invalid model name: {modelName}")
         };
     }

@@ -75,8 +75,9 @@ app.MapGet("api/v1/pickers/{model}", [Authorize] (IDataRepository db, string mod
     return db.GetShowAsRows(model);
 });
 
-app.MapDelete("api/v1/{model}/{id}", async (IDataRepository db, string model, string id) => {
-    var status = await db.DeactivateColumn(model, id);
+app.MapDelete("api/v1/{model}/{id}", [Authorize] async (HttpContext http, IDataRepository db, string model, string id) => {
+    var (userId, _, isAdmin, _) = TokenService.destructureToken(http);
+    var status = await db.DeactivateColumn(model, id, userId, isAdmin);
     return new StatusResponse(status, status == false ? "DEACTIVATE_FAILED" : "");
 });
 
@@ -146,7 +147,7 @@ app.MapPost("api/v1/auth/login", [AllowAnonymous] async (HttpContext http, IToke
     }
 
     var token = tokenService.BuildToken(builder.Configuration["Jwt:Key"], builder.Configuration["Jwt:Issuer"], authUser);
-    await http.Response.WriteAsJsonAsync(new { token = token, isAdmin = authUser.isAdmin });
+    await http.Response.WriteAsJsonAsync(new { token = token, isAdmin = authUser.isAdmin, userId = authUser.id });
 });
 
 app.MapGet("api/v1/stats/popular-destinations", [AllowAnonymous] async (HttpContext http, IDataRepository db) => {
@@ -168,6 +169,12 @@ app.MapGet("api/v1/stats/avg-trips-month", [AllowAnonymous] async (HttpContext h
     var tripPerMonth = db.AvgTripsPerMonth();
     await http.Response.WriteAsJsonAsync(tripPerMonth);
 });
+
+app.MapGet("api/v1/trip-suggestion", [Authorize] async (HttpContext http, IDataRepository db, string model) => {
+    var (userId, _, _, _) = TokenService.destructureToken(http);
+    return db.PopularDestinations();
+});
+
 
 
 /*app.MapGet("api/v1/pdfs/active-users", [AllowAnonymous] (HttpContext http, IDataRepository db) => {

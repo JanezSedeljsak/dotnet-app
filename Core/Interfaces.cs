@@ -13,7 +13,7 @@ public interface IDataRepository {
     Task<bool> UpdateTripUser(TripUser tu, string id, string userId, bool isAdmin);
     Task<Tuple<bool, string>> SyncCountries();
     List<dynamic> GetShowAsRows(string modelName);
-    Task<bool> DeactivateColumn(string modelName, string id);
+    Task<bool> DeactivateColumn(string modelName, string id, string userId, bool isAdmin);
     List<dynamic> PopularDestinations();
     dynamic GetUserById(String userId);
     List<dynamic> GetActiveUsers();
