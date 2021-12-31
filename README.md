@@ -1,4 +1,4 @@
-# Travel log service client
+# Travel log service
 Backend of a University project for Informational systems.
 
 ## Short description
@@ -6,7 +6,7 @@ It's a standard REST project, it uses "dotnet entity-framework" for storing data
 The whole API is deployes on Azure - [here](https://travel-log.azurewebsites.net)
 
 ## Frontend
-There is also a github repository for that project - [here](https://github.com/JanezSedeljsak/travel-log-service-client)
+The frontend of the project is developed with React, available [here](https://github.com/JanezSedeljsak/travel-log-service-client)
 
 ## Install locally
 You should have the latest (6.0) dotnet installed on your system
