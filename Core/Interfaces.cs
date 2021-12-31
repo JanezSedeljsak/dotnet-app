@@ -13,13 +13,18 @@ public interface IDataRepository {
     Task<bool> UpdateTripUser(TripUser tu, string id, string userId, bool isAdmin);
     Task<Tuple<bool, string>> SyncCountries();
     List<dynamic> GetShowAsRows(string modelName);
-    Task<bool> DeactivateColumn(string modelName, string id);
+    Task<bool> DeactivateColumn(string modelName, string id, string userId, bool isAdmin);
     List<dynamic> PopularDestinations();
+    dynamic GetUserById(String userId);
+    List<dynamic> GetActiveUsers();
+    List<dynamic> TopCountries();
+    List<dynamic> AvgTripsPerMonth();
 }
 
 public interface IAuthRepository {
     Tuple<bool, User> AuthRegister(User user);
     Tuple<bool, User, string> GetAuth(AuthCredentials credentials);
+    Task<bool> UpdateUser(UserUpdateModel u, string userId, bool isAdmin);
     User ParseUser(HttpContext http);
 }
 

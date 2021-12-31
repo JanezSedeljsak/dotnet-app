@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace Core.DataRepositoryWrapper;
 
@@ -23,10 +24,14 @@ public class DataRepository : IDataRepository {
         return result;
     }
 
-    public async Task<bool> DeactivateColumn(string modelName, string id) {
+    public async Task<bool> DeactivateColumn(string modelName, string id, string userId, bool isAdmin) {
+        Console.WriteLine($"Deleting -> {id}");
         var dbRow = db.GetDbSet(modelName).FirstOrDefault(row => row.id == id);
-        dbRow.Deactivate();
-        return (await db.SaveChangesAsync()) > 0;
+        if (isAdmin || dbRow.createdBy == userId) {
+            dbRow.Deactivate();
+            return (await db.SaveChangesAsync()) > 0;
+        }
+        return false;
     }
 
     public List<dynamic> GetCountries() {
@@ -63,11 +68,27 @@ public class DataRepository : IDataRepository {
     public List<dynamic> GetUsers() {
         var data = (
             from u in db.user
+            where u.isAdmin == false
             select new {
                 Id = u.id,
                 FullName = u.fullname,
                 Email = u.email,
-                BirthDate = u.birthdate
+                BirthDate = u.birthdate,
+                Trips = (
+                    from tu in db.tripuser
+                    join t in db.trip on tu.tripid equals t.id
+                    join d in db.destination on t.destinationid equals d.id
+                    join c in db.country on d.countryid equals c.id
+                    where tu.userid == u.id
+                    where t.isActive == true
+                    select new {
+                        Id = t.id,
+                        TripName = t.name,
+                        TripDate = t.tripdate,
+                        Destination = d.name,
+                        CountryName = c.name,
+                    }
+                ).ToList<dynamic>()
             }).ToList<dynamic>();
 
         return data;
@@ -92,6 +113,7 @@ public class DataRepository : IDataRepository {
             join d in db.destination on t.destination.id equals d.id
             join c in db.country on d.country.id equals c.id
             join r in db.region on c.region.id equals r.id
+            where t.isActive == true
             select new { 
                 Id = t.id,
                 TripName = t.name,
@@ -99,7 +121,8 @@ public class DataRepository : IDataRepository {
                 Destination = d.name,
                 CountryName = c.name,
                 RegionName = r.name,
-                CountryCode = c.countryCode
+                CountryCode = c.countryCode,
+                CreatedBy = t.createdBy,
             }).ToList<dynamic>();
         
         var data = new List<dynamic>();
@@ -120,12 +143,14 @@ public class DataRepository : IDataRepository {
             }
 
             data.Add(new {
+                Id = row.Id,
                 TripName = row.TripName,
                 TripDate = row.TripDate,
                 Destination = row.Destination,
                 CountryName = row.CountryName,
                 RegionName = row.RegionName,
                 CountryCode = row.CountryCode,
+                CreatedBy = row.CreatedBy,
                 AvgRating = ratingCount != 0 ? ratingSum / (double)ratingCount : -1,
                 UserList = userList
             });
@@ -268,15 +293,89 @@ public class DataRepository : IDataRepository {
         var topDestinations = (
             from t in db.trip
             join d in db.destination on t.destination.id equals d.id
-            join c in db.country on t.destination.country.id equals c.id
-            select new { 
-                DestinationId = t.destinationid,
-                TripName = t.name,
-                TripDate = t.tripdate,
-                Name = d.name,
-                Country = c.name
+            where t.isActive == true
+            group t by t.destination.id into g
+            select new {
+                DestinationId = g.Key,
+                Name = g.Select(g => g.destination.name).FirstOrDefault(),
+                Country = g.Select(g => g.destination.country.name).FirstOrDefault(),
+                Trips = g.Select(g => g.name),
+                Count = g.Count(),
             }).ToList<dynamic>();  
             
-        return topDestinations;
+        return topDestinations.OrderByDescending(o => o.Count).Take(5).ToList();
+    }
+
+    public List<dynamic> GetActiveUsers() {
+        var topDestinations = (
+            from tu in db.tripuser
+            group tu by tu.user.id into g
+            select new {
+                UserId = g.Key,
+                User = g.Select(g => g.user).FirstOrDefault(),
+                Visited = g.Select(g => g.trip.destination.name).Distinct(),
+                Count = g.Count(),
+            }).ToList<dynamic>();  
+            
+        return topDestinations.OrderByDescending(o => o.Count).Take(5).ToList();
+    }
+
+    public List<dynamic> TopCountries() {
+        var topDestinations = (
+            from t in db.trip
+            join d in db.destination on t.destination.id equals d.id
+            join c in db.country on d.countryid equals c.id 
+            where t.isActive == true
+            group c by c.id into g
+            select new {
+                CountryId = g.Key,
+                CountryName = g.Select(g => g.name).FirstOrDefault(),
+                Count = g.Count()
+            }).ToList<dynamic>();  
+            
+        return topDestinations.OrderByDescending(o => o.Count).Take(5).ToList();
+    }
+
+    public List<dynamic> AvgTripsPerMonth() {
+        var tripData = (
+            from t in db.trip
+            where t.isActive == true
+            group t by t.tripdate.Value.Month into g
+            select new {
+                Month = g.Key,
+                Count = g.Count()
+            }
+        ).ToList<dynamic>();
+
+        dynamic[] grouppedData = new dynamic[12];
+        for (int i = 0; i < 12; i++) {
+            grouppedData[i] = new {
+                Month = i+1,
+                MonthName = new DateTime(2015, i+1, 1).ToString("MMMM", CultureInfo.CreateSpecificCulture("en")),
+                Count = 0
+            };
+        }
+
+        foreach (dynamic trip in tripData) {
+            grouppedData[trip.Month-1] = new {
+                Month = trip.Month,
+                MonthName = grouppedData[trip.Month-1].MonthName,
+                Count = trip.Count
+            };
+        }
+
+        return grouppedData.ToList<dynamic>();
+    }
+
+    public dynamic GetUserById(String userId) {
+        var record = (from u in db.user select new {
+            id = u.id,
+            fullname = u.fullname,
+            email = u.email,
+            createdAt = u.createdAt,
+            langCode = u.langCode,
+            birthdate = u.birthdate
+        }).FirstOrDefault(u => u.id == userId);
+        return record;
     }
 }

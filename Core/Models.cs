@@ -78,3 +78,7 @@ public class TripUser : BaseModel {
     public string userid { get; set; }
 }
 
+public class UserUpdateModel : User {
+    public string oldpassword { get; set; }
+}
+

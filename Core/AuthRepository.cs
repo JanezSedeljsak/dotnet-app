@@ -7,12 +7,11 @@ public class AuthRepository : IAuthRepository {
     public AuthRepository(TravelLogContext db) {
         this.db = db;
     }
-
     public Tuple<bool, User> AuthRegister(User user) {
         var newUser = new User {
             fullname = user.fullname,
-            birthdate = user.birthdate,
             email = user.email,
+            isAdmin = false,
             password = BCrypt.Net.BCrypt.HashPassword(user.password),
         };
 
@@ -34,6 +33,23 @@ public class AuthRepository : IAuthRepository {
         }
 
         return Tuple.Create(false, userByEmail, "PASSWORD_MISSMATCH");
+    }
+
+    public async Task<bool> UpdateUser(UserUpdateModel u, string userId, bool isAdmin) {
+        var record = db.user.FirstOrDefault(u => u.id == userId);
+        bool verified = BCrypt.Net.BCrypt.Verify(u.oldpassword, record.password);
+        if (!verified) {
+            Console.WriteLine("verified failed");
+            return false;
+        }
+
+        record.fullname = u.fullname != null ? u.fullname : record.fullname;
+        record.email = u.email != null ? u.email : record.email;
+        record.langCode = u.langCode != null ? u.langCode : record.langCode;
+        if (u.password != null && u.password.Length > 0) {
+            record.password = BCrypt.Net.BCrypt.HashPassword(u.password);
+        }
+        return (await db.SaveChangesAsync()) > 0;
     }
 
     public User ParseUser(HttpContext http) {

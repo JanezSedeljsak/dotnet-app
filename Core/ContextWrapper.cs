@@ -12,7 +12,9 @@ public class TravelLogContext : DbContext {
         return modelName switch {
             "countries" => country,
             "users" => user,
-            "destinations" => destination
+            "destinations" => destination,
+            "trips" => trip,
+            _ => throw new Exception($"Invalid model name: {modelName}")
         };
     }
 
